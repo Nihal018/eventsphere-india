@@ -1,0 +1,89 @@
+// components/events/EventCard.tsx
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, MapPin, IndianRupee } from "lucide-react";
+import { Event } from "@/types";
+import { formatDate, formatTime, formatPrice } from "@/lib/utils";
+
+interface EventCardProps {
+  event: Event;
+}
+
+export default function EventCard({ event }: EventCardProps) {
+  return (
+    <Link href={`/events/${event.id}`}>
+      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border-0 shadow-md">
+        <div className="relative h-48 overflow-hidden">
+          <Image
+            src={event.imageUrl}
+            alt={event.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute top-3 right-3">
+            {event.isFree ? (
+              <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                FREE
+              </span>
+            ) : (
+              <span className="bg-primary text-white px-2 py-1 rounded-full text-xs font-semibold">
+                {formatPrice(event.price)}
+              </span>
+            )}
+          </div>
+          <div className="absolute top-3 left-3">
+            <span className="bg-black/70 text-white px-2 py-1 rounded-full text-xs font-semibold capitalize">
+              {event.category}
+            </span>
+          </div>
+        </div>
+
+        <CardContent className="p-4">
+          <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+            {event.title}
+          </h3>
+
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            {event.description}
+          </p>
+
+          <div className="space-y-2">
+            <div className="flex items-center text-sm text-gray-500">
+              <Calendar className="h-4 w-4 mr-2 text-primary" />
+              <span>
+                {formatDate(event.date)} at {formatTime(event.time)}
+              </span>
+            </div>
+
+            <div className="flex items-center text-sm text-gray-500">
+              <MapPin className="h-4 w-4 mr-2 text-primary" />
+              <span className="line-clamp-1">
+                {event.venueName}, {event.city}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500">
+                by {event.organizer}
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {event.tags.slice(0, 2).map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
