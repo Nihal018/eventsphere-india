@@ -1,7 +1,24 @@
-// components/events/FeaturedEvents.tsx
+"use client";
+
 import React from "react";
-import EventCard from "./EventCard";
+import dynamic from "next/dynamic";
 import { Event } from "@/types";
+
+// Dynamically import EventCard to avoid SSR hydration issues
+const EventCard = dynamic(() => import("./EventCard"), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+      <div className="h-48 bg-gray-200"></div>
+      <div className="p-4">
+        <div className="h-6 bg-gray-200 rounded mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded mb-3"></div>
+        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </div>
+    </div>
+  ),
+});
 
 interface FeaturedEventsProps {
   events: Event[];

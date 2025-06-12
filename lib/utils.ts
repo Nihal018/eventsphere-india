@@ -5,15 +5,61 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Format date for display
+// Fixed date formatting to ensure SSR/client consistency
 export function formatDate(date: string): string {
   try {
-    return new Date(date).toLocaleDateString("en-IN", {
+    const dateObj = new Date(date);
+
+    // Use a more explicit formatting approach to avoid locale differences
+    const options: Intl.DateTimeFormatOptions = {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
-    });
+      timeZone: "UTC", // Force UTC to avoid timezone differences
+    };
+
+    // Use 'en-US' to ensure consistent formatting across server/client
+    return dateObj.toLocaleDateString("en-US", options);
+  } catch (error) {
+    return date;
+  }
+}
+
+// Alternative: Simple manual formatting to avoid locale issues entirely
+export function formatDateSimple(date: string): string {
+  try {
+    const dateObj = new Date(date);
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    const dayName = days[dateObj.getDay()];
+    const monthName = months[dateObj.getMonth()];
+    const dayNumber = dateObj.getDate();
+    const year = dateObj.getFullYear();
+
+    return `${dayName}, ${dayNumber} ${monthName} ${year}`;
   } catch (error) {
     return date;
   }
@@ -22,7 +68,9 @@ export function formatDate(date: string): string {
 // Format time for display
 export function formatTime(time: string): string {
   try {
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString("en-IN", {
+    // Use a consistent approach for time formatting
+    const timeObj = new Date(`2000-01-01T${time}`);
+    return timeObj.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
@@ -35,10 +83,14 @@ export function formatTime(time: string): string {
 // Format price
 export function formatPrice(price: number): string {
   try {
-    return new Intl.NumberFormat("en-IN", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "INR",
-    }).format(price);
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+      .format(price)
+      .replace("$", "₹");
   } catch (error) {
     return `₹${price}`;
   }

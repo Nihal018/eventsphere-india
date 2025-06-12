@@ -19,6 +19,7 @@ interface SearchFiltersProps {
   cities: string[];
   states: string[];
   categories: string[];
+  initialFilters?: FilterOptions; // Add initial filters prop
 }
 
 export default function SearchFilters({
@@ -26,15 +27,35 @@ export default function SearchFilters({
   cities,
   states,
   categories,
+  initialFilters,
 }: SearchFiltersProps) {
-  const [filters, setFilters] = useState<FilterOptions>({
-    search: "",
-    city: "",
-    state: "",
-    category: "",
-    priceRange: "all",
-  });
+  const [filters, setFilters] = useState<FilterOptions>(
+    initialFilters || {
+      search: "",
+      city: "",
+      state: "",
+      category: "",
+      priceRange: "all",
+    }
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Update local state when initial filters change
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(initialFilters);
+      // Auto-open filters if any are active from URL
+      const hasActiveFilters =
+        initialFilters.search ||
+        initialFilters.city ||
+        initialFilters.state ||
+        initialFilters.category ||
+        initialFilters.priceRange !== "all";
+      if (hasActiveFilters) {
+        setIsFilterOpen(true);
+      }
+    }
+  }, [initialFilters]);
 
   // Debounced filter change to avoid too many calls
   const debouncedFilterChange = useCallback(
@@ -215,6 +236,51 @@ export default function SearchFilters({
               </SelectContent>
             </Select>
           </div>
+        </div>
+      )}
+
+      {/* Active Filters Display */}
+      {hasActiveFilters && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {filters.category && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              Category:{" "}
+              {filters.category.charAt(0).toUpperCase() +
+                filters.category.slice(1)}
+              <X
+                className="ml-1 h-3 w-3 cursor-pointer"
+                onClick={() => handleInputChange("category", "")}
+              />
+            </span>
+          )}
+          {filters.city && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+              City: {filters.city}
+              <X
+                className="ml-1 h-3 w-3 cursor-pointer"
+                onClick={() => handleInputChange("city", "")}
+              />
+            </span>
+          )}
+          {filters.state && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+              State: {filters.state}
+              <X
+                className="ml-1 h-3 w-3 cursor-pointer"
+                onClick={() => handleInputChange("state", "")}
+              />
+            </span>
+          )}
+          {filters.priceRange !== "all" && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
+              Price:{" "}
+              {filters.priceRange === "free" ? "Free Events" : "Paid Events"}
+              <X
+                className="ml-1 h-3 w-3 cursor-pointer"
+                onClick={() => handleInputChange("priceRange", "all")}
+              />
+            </span>
+          )}
         </div>
       )}
     </div>

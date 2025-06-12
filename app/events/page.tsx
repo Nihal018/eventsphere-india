@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import SearchFilters from "@/components/events/SearchFilters";
 
 import { Event, FilterOptions } from "@/types";
@@ -13,12 +14,31 @@ import {
 import { EventGrid } from "../../components/events/EventGrid";
 
 export default function EventsPage() {
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [cities] = useState<string[]>(getUniqueCities());
   const [states] = useState<string[]>(getUniqueStates());
   const [categories] = useState<string[]>(getUniqueCategories());
+
+  // Get initial filters from URL parameters
+  const getInitialFilters = useCallback((): FilterOptions => {
+    return {
+      search: searchParams.get("search") || "",
+      city: searchParams.get("city") || "",
+      state: searchParams.get("state") || "",
+      category: (searchParams.get("category") as any) || "",
+      priceRange: (searchParams.get("priceRange") as any) || "all",
+    };
+  }, [searchParams]);
+
+  const [filters, setFilters] = useState<FilterOptions>(getInitialFilters());
+
+  useEffect(() => {
+    // Update filters when URL changes
+    setFilters(getInitialFilters());
+  }, [getInitialFilters]);
 
   useEffect(() => {
     // Simulate API call
@@ -27,21 +47,20 @@ export default function EventsPage() {
       // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 500));
       setEvents(mockEvents);
-      setFilteredEvents(mockEvents);
       setLoading(false);
     };
 
     loadEvents();
   }, []); // Empty dependency array - only run once
 
-  // Use useCallback to memoize the filter function
-  const handleFilterChange = useCallback(
-    (filters: FilterOptions) => {
+  // Apply filters function
+  const applyFilters = useCallback(
+    (filterOptions: FilterOptions) => {
       let filtered = [...events];
 
       // Filter by search term
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
+      if (filterOptions.search) {
+        const searchTerm = filterOptions.search.toLowerCase();
         filtered = filtered.filter(
           (event) =>
             event.title.toLowerCase().includes(searchTerm) ||
@@ -51,30 +70,32 @@ export default function EventsPage() {
       }
 
       // Filter by city (only if not empty string)
-      if (filters.city && filters.city !== "") {
+      if (filterOptions.city && filterOptions.city !== "") {
         filtered = filtered.filter(
-          (event) => event.city.toLowerCase() === filters.city.toLowerCase()
+          (event) =>
+            event.city.toLowerCase() === filterOptions.city.toLowerCase()
         );
       }
 
       // Filter by state (only if not empty string)
-      if (filters.state && filters.state !== "") {
+      if (filterOptions.state && filterOptions.state !== "") {
         filtered = filtered.filter(
-          (event) => event.state.toLowerCase() === filters.state.toLowerCase()
+          (event) =>
+            event.state.toLowerCase() === filterOptions.state.toLowerCase()
         );
       }
 
-      // Filter by category (only if defined)
-      if (filters.category) {
+      // Filter by category (only if not empty string)
+      if (filterOptions.category) {
         filtered = filtered.filter(
-          (event) => event.category === filters.category
+          (event) => event.category === filterOptions.category
         );
       }
 
       // Filter by price range
-      if (filters.priceRange === "free") {
+      if (filterOptions.priceRange === "free") {
         filtered = filtered.filter((event) => event.isFree);
-      } else if (filters.priceRange === "paid") {
+      } else if (filterOptions.priceRange === "paid") {
         filtered = filtered.filter((event) => !event.isFree);
       }
 
@@ -86,7 +107,41 @@ export default function EventsPage() {
       setFilteredEvents(filtered);
     },
     [events]
-  ); // Only recreate when events change
+  );
+
+  // Apply filters whenever events or filters change
+  useEffect(() => {
+    if (events.length > 0) {
+      applyFilters(filters);
+    }
+  }, [events, filters, applyFilters]);
+
+  // Handle filter changes from the SearchFilters component
+  const handleFilterChange = useCallback((newFilters: FilterOptions) => {
+    setFilters(newFilters);
+  }, []);
+
+  // Get the active filter summary for display
+  const getFilterSummary = () => {
+    const activeFilters = [];
+
+    if (filters.search) activeFilters.push(`"${filters.search}"`);
+    if (filters.city) activeFilters.push(filters.city);
+    if (filters.state) activeFilters.push(filters.state);
+    if (filters.category)
+      activeFilters.push(
+        filters.category.charAt(0).toUpperCase() + filters.category.slice(1)
+      );
+    if (filters.priceRange !== "all")
+      activeFilters.push(
+        filters.priceRange === "free" ? "Free Events" : "Paid Events"
+      );
+
+    if (activeFilters.length > 0) {
+      return ` for ${activeFilters.join(", ")}`;
+    }
+    return "";
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,12 +164,18 @@ export default function EventsPage() {
           cities={cities}
           states={states}
           categories={categories}
+          initialFilters={filters} // Pass initial filters to component
         />
 
         {/* Results Summary */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {loading ? "Loading..." : `${filteredEvents.length} Events Found`}
+            {!loading && (
+              <span className="text-lg font-normal text-gray-600">
+                {getFilterSummary()}
+              </span>
+            )}
           </h2>
           <p className="text-gray-600">
             Discover amazing events happening across India

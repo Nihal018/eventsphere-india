@@ -65,9 +65,73 @@ export interface FilterOptions {
   priceRange: "free" | "paid" | "all";
 }
 
-export interface ApiResponse<T> {
+export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   message?: string;
   error?: string;
+}
+
+// Component prop types
+export interface EventCardProps {
+  event: Event;
+}
+
+export interface SearchFiltersProps {
+  onFilterChange: (filters: FilterOptions) => void;
+  cities: string[];
+  states: string[];
+  categories: string[];
+  initialFilters?: FilterOptions; // Add optional initial filters
+}
+
+export interface EventGridProps {
+  events: Event[];
+  loading?: boolean;
+}
+
+export interface FeaturedEventsProps {
+  events: Event[];
+}
+
+// Layout prop types
+export interface LayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+}
+
+// Auth form types
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+export interface RegisterFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+}
+
+// Booking form types
+export interface BillingInfo {
+  fullName: string;
+  email: string;
+  phone: string;
+}
+
+export interface CheckoutFormData extends BillingInfo {
+  paymentMethod: "card" | "upi" | "netbanking";
+}
+
+// Confirmation details type
+export interface ConfirmationDetails extends BookingDetails, BillingInfo {
+  paymentMethod: string;
+  confirmationId: string;
+  paymentStatus: string;
+  bookedAt: string;
 }

@@ -1,11 +1,10 @@
-// components/events/EventCard.tsx (Updated for App Router)
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, IndianRupee } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { Event } from "@/types";
 import { formatDate, formatTime, formatPrice } from "@/lib/utils";
 
@@ -14,6 +13,29 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Show skeleton while hydrating to avoid mismatch
+  if (!isClient) {
+    return (
+      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border-0 shadow-md">
+        <div className="relative h-48 overflow-hidden bg-gray-200 animate-pulse"></div>
+        <CardContent className="p-4">
+          <div className="h-6 bg-gray-200 rounded mb-2 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded mb-3 animate-pulse"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Link href={`/events/${event.id}`}>
       <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border-0 shadow-md">
@@ -30,7 +52,7 @@ export default function EventCard({ event }: EventCardProps) {
                 FREE
               </span>
             ) : (
-              <span className="bg-primary text-white px-2 py-1 rounded-full text-xs font-semibold">
+              <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
                 {formatPrice(event.price)}
               </span>
             )}
@@ -43,7 +65,7 @@ export default function EventCard({ event }: EventCardProps) {
         </div>
 
         <CardContent className="p-4">
-          <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
             {event.title}
           </h3>
 
@@ -53,14 +75,14 @@ export default function EventCard({ event }: EventCardProps) {
 
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-500">
-              <Calendar className="h-4 w-4 mr-2 text-primary" />
+              <Calendar className="h-4 w-4 mr-2 text-blue-600" />
               <span>
                 {formatDate(event.date)} at {formatTime(event.time)}
               </span>
             </div>
 
             <div className="flex items-center text-sm text-gray-500">
-              <MapPin className="h-4 w-4 mr-2 text-primary" />
+              <MapPin className="h-4 w-4 mr-2 text-blue-600" />
               <span className="line-clamp-1">
                 {event.venueName}, {event.city}
               </span>
