@@ -5,19 +5,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Format date for display
+// Format date for display - using consistent locale to prevent hydration mismatch
 export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString("en-IN", {
+  const dateObj = new Date(date);
+
+  // Use consistent formatting that works the same on server and client
+  const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
-  });
+  };
+
+  // Force consistent locale to prevent server/client mismatch
+  return dateObj.toLocaleDateString("en-US", options);
 }
 
 // Format time for display
 export function formatTime(time: string): string {
-  return new Date(`2000-01-01T${time}`).toLocaleTimeString("en-IN", {
+  const timeObj = new Date(`2000-01-01T${time}`);
+  return timeObj.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,

@@ -1,4 +1,6 @@
-// components/events/EventCard.tsx
+// components/events/EventCard.tsx (Updated for App Router)
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";

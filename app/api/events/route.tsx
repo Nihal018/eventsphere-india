@@ -1,24 +1,20 @@
-import { NextApiRequest, NextApiResponse } from "next";
+// app/api/events/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { mockEvents } from "@/lib/data";
-import { Event, ApiResponse } from "@/types";
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<Event[]>>
-) {
-  if (req.method !== "GET") {
-    return res
-      .status(405)
-      .json({ success: false, error: "Method not allowed" });
-  }
-
+export async function GET(request: NextRequest) {
   try {
-    const { search, city, state, category, priceRange } = req.query;
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search");
+    const city = searchParams.get("city");
+    const state = searchParams.get("state");
+    const category = searchParams.get("category");
+    const priceRange = searchParams.get("priceRange");
 
     let filteredEvents = [...mockEvents];
 
     // Filter by search term
-    if (search && typeof search === "string") {
+    if (search) {
       const searchTerm = search.toLowerCase();
       filteredEvents = filteredEvents.filter(
         (event) =>
@@ -29,28 +25,28 @@ export default function handler(
     }
 
     // Filter by city
-    if (city && typeof city === "string" && city !== "all") {
+    if (city && city !== "all") {
       filteredEvents = filteredEvents.filter(
         (event) => event.city.toLowerCase() === city.toLowerCase()
       );
     }
 
     // Filter by state
-    if (state && typeof state === "string" && state !== "all") {
+    if (state && state !== "all") {
       filteredEvents = filteredEvents.filter(
         (event) => event.state.toLowerCase() === state.toLowerCase()
       );
     }
 
     // Filter by category
-    if (category && typeof category === "string" && category !== "all") {
+    if (category && category !== "all") {
       filteredEvents = filteredEvents.filter(
         (event) => event.category === category
       );
     }
 
     // Filter by price range
-    if (priceRange && typeof priceRange === "string") {
+    if (priceRange) {
       if (priceRange === "free") {
         filteredEvents = filteredEvents.filter((event) => event.isFree);
       } else if (priceRange === "paid") {
@@ -63,14 +59,17 @@ export default function handler(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    res.status(200).json({
+    return NextResponse.json({
       success: true,
       data: filteredEvents,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Internal server error",
+      },
+      { status: 500 }
+    );
   }
 }

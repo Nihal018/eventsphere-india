@@ -1,9 +1,18 @@
-// pages/confirmation.tsx
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import Layout from "@/components/layout/Layout";
+// app/confirmation/page.tsx
+"use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/ui/card";
 import {
   CheckCircle,
   Calendar,
@@ -13,13 +22,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { formatDate, formatTime, formatPrice } from "@/lib/utils";
-import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
 
 interface ConfirmationDetails {
   eventTitle: string;
@@ -75,8 +77,9 @@ export default function ConfirmationPage() {
 
   if (!confirmationDetails) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-grow flex items-center justify-center bg-gray-50">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Loading...
@@ -86,15 +89,17 @@ export default function ConfirmationPage() {
             </p>
           </div>
         </div>
-      </Layout>
+        <Footer />
+      </div>
     );
   }
 
   const isFree = confirmationDetails.price === 0;
 
   return (
-    <Layout title="Booking Confirmed - EventSphere India">
-      <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow bg-gray-50 py-8">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Success Message */}
           <div className="text-center mb-8">
@@ -229,7 +234,8 @@ export default function ConfirmationPage() {
             </ul>
           </div>
         </div>
-      </div>
-    </Layout>
+      </main>
+      <Footer />
+    </div>
   );
 }

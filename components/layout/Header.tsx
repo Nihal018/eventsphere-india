@@ -1,7 +1,8 @@
-// components/layout/Header.tsx
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // Changed from 'next/router'
 import { Button } from "@/components/ui/button";
 import { User, Menu, X, Calendar, LogOut } from "lucide-react";
 import { isAuthenticated, removeAuthToken } from "@/lib/utils";
@@ -41,21 +42,21 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-4 ">
             <Link
               href="/"
-              className="text-gray-700 hover:text-primary transition-colors"
+              className=" hover:text-primary hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors "
             >
               Home
             </Link>
             <Link
               href="/events"
-              className="text-gray-700 hover:text-primary transition-colors"
+              className=" hover:text-primary  hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors"
             >
               Browse Events
             </Link>
             {isLoggedIn ? (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
                 <Link
                   href="/my-bookings"
                   className="text-gray-700 hover:text-primary transition-colors"
@@ -65,19 +66,29 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   onClick={handleLogout}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2  hover:text-primary transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Logout</span>
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link href="/login">
-                  <Button variant="ghost">Login</Button>
+              <div className="flex items-center ">
+                <Link href="/auth/login">
+                  <Button
+                    variant="ghost"
+                    className=" hover:text-primary transition-colors"
+                  >
+                    Login
+                  </Button>
                 </Link>
-                <Link href="/register">
-                  <Button>Sign Up</Button>
+                <Link href="/auth/register">
+                  <Button
+                    variant="ghost"
+                    className=" hover:text-primary transition-colors ml-2"
+                  >
+                    Sign Up
+                  </Button>
                 </Link>
               </div>
             )}
@@ -130,12 +141,12 @@ export default function Header() {
                 </>
               ) : (
                 <div className="flex flex-col space-y-2 px-4">
-                  <Link href="/login">
+                  <Link href="/auth/login">
                     <Button variant="ghost" className="w-full justify-start">
                       Login
                     </Button>
                   </Link>
-                  <Link href="/register">
+                  <Link href="/auth/register">
                     <Button className="w-full">Sign Up</Button>
                   </Link>
                 </div>

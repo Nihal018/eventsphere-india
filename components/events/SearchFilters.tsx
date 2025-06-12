@@ -1,15 +1,17 @@
-// components/events/SearchFilters.tsx
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+
 import { Search, Filter, X } from "lucide-react";
 import { FilterOptions } from "@/types";
 import {
-  SelectTrigger,
   Select,
+  SelectTrigger,
+  SelectValue,
   SelectContent,
   SelectItem,
-  SelectValue,
-} from "../ui/select";
+} from "@radix-ui/react-select";
+import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
 interface SearchFiltersProps {
@@ -19,7 +21,7 @@ interface SearchFiltersProps {
   categories: string[];
 }
 
-export function SearchFilters({
+export default function SearchFilters({
   onFilterChange,
   cities,
   states,
@@ -34,15 +36,31 @@ export function SearchFilters({
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  // Debounced filter change to avoid too many calls
+  const debouncedFilterChange = useCallback(
+    (newFilters: FilterOptions) => {
+      const timeoutId = setTimeout(() => {
+        onFilterChange(newFilters);
+      }, 300); // 300ms debounce
+
+      return () => clearTimeout(timeoutId);
+    },
+    [onFilterChange]
+  );
+
   useEffect(() => {
-    onFilterChange(filters);
-  }, [filters, onFilterChange]);
+    const cleanup = debouncedFilterChange(filters);
+    return cleanup;
+  }, [filters, debouncedFilterChange]);
 
-  const handleInputChange = (field: keyof FilterOptions, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = useCallback(
+    (field: keyof FilterOptions, value: string) => {
+      setFilters((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({
       search: "",
       city: "",
@@ -50,7 +68,7 @@ export function SearchFilters({
       category: "",
       priceRange: "all",
     });
-  };
+  }, []);
 
   const hasActiveFilters =
     filters.search ||
@@ -82,7 +100,7 @@ export function SearchFilters({
           <Filter className="h-4 w-4" />
           <span>Filters</span>
           {hasActiveFilters && (
-            <span className="bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+            <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
               !
             </span>
           )}
@@ -108,14 +126,16 @@ export function SearchFilters({
               City
             </label>
             <Select
-              value={filters.city}
-              onValueChange={(value) => handleInputChange("city", value)}
+              value={filters.city || "all"}
+              onValueChange={(value) =>
+                handleInputChange("city", value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select city" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Cities</SelectItem>
+                <SelectItem value="all">All Cities</SelectItem>
                 {cities.map((city) => (
                   <SelectItem key={city} value={city}>
                     {city}
@@ -130,14 +150,16 @@ export function SearchFilters({
               State
             </label>
             <Select
-              value={filters.state}
-              onValueChange={(value) => handleInputChange("state", value)}
+              value={filters.state || "all"}
+              onValueChange={(value) =>
+                handleInputChange("state", value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All States</SelectItem>
+                <SelectItem value="all">All States</SelectItem>
                 {states.map((state) => (
                   <SelectItem key={state} value={state}>
                     {state}
@@ -152,14 +174,16 @@ export function SearchFilters({
               Category
             </label>
             <Select
-              value={filters.category}
-              onValueChange={(value) => handleInputChange("category", value)}
+              value={filters.category || "all"}
+              onValueChange={(value) =>
+                handleInputChange("category", value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem
                     key={category}
