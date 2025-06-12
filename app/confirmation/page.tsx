@@ -192,7 +192,7 @@ export default function ConfirmationPage() {
 
           {/* Action Buttons */}
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <Button
                 onClick={handleDownloadTicket}
                 variant="outline"

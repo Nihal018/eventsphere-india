@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Changed from 'next/router'
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { User, Menu, X, Calendar, LogOut } from "lucide-react";
 import { isAuthenticated, removeAuthToken } from "@/lib/utils";
@@ -28,10 +28,10 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-lg border-b sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 ml-24">
             <Calendar className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold gradient-text">
               EventSphere
@@ -42,7 +42,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-4 ">
+          <nav className="hidden md:flex items-center space-x-4">
             <Link
               href="/"
               className=" hover:text-primary hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors "
@@ -56,7 +56,7 @@ export default function Header() {
               Browse Events
             </Link>
             {isLoggedIn ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 ">
                 <Link
                   href="/my-bookings"
                   className="text-gray-700 hover:text-primary transition-colors"

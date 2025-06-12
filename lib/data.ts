@@ -15,7 +15,7 @@ export const mockEvents: Event[] = [
     city: "Mumbai",
     state: "Maharashtra",
     imageUrl:
-      "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 2500,
     isFree: false,
     latitude: 19.0596,
@@ -38,7 +38,7 @@ export const mockEvents: Event[] = [
     city: "Bengaluru",
     state: "Karnataka",
     imageUrl:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 1500,
     isFree: false,
     latitude: 13.0827,
@@ -67,7 +67,7 @@ export const mockEvents: Event[] = [
     city: "New Delhi",
     state: "Delhi",
     imageUrl:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 0,
     isFree: true,
     latitude: 28.6129,
@@ -90,7 +90,7 @@ export const mockEvents: Event[] = [
     city: "Hyderabad",
     state: "Telangana",
     imageUrl:
-      "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 3000,
     isFree: false,
     latitude: 17.4239,
@@ -113,7 +113,7 @@ export const mockEvents: Event[] = [
     city: "Chennai",
     state: "Tamil Nadu",
     imageUrl:
-      "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 250,
     isFree: false,
     latitude: 13.0827,
@@ -136,7 +136,7 @@ export const mockEvents: Event[] = [
     city: "Kolkata",
     state: "West Bengal",
     imageUrl:
-      "https://images.unsplash.com/photo-1576267423445-b2f0074b8bbc?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1597149266671-9b71adbba695?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 1200,
     isFree: false,
     latitude: 22.5726,
@@ -159,7 +159,7 @@ export const mockEvents: Event[] = [
     city: "Pune",
     state: "Maharashtra",
     imageUrl:
-      "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=800&h=400&fit=crop&crop=entropy&cs=tinysrgb",
+      "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
     price: 2000,
     isFree: false,
     latitude: 18.5204,
@@ -186,15 +186,15 @@ export const mockUsers: User[] = [
 
 // Helper function to get unique cities
 export const getUniqueCities = (): string[] => {
-  return [...new Set(mockEvents.map((event) => event.city))].sort();
+  return Array.from(new Set(mockEvents.map((event) => event.city))).sort();
 };
 
 // Helper function to get unique states
 export const getUniqueStates = (): string[] => {
-  return [...new Set(mockEvents.map((event) => event.state))].sort();
+  return Array.from(new Set(mockEvents.map((event) => event.state))).sort();
 };
 
 // Helper function to get unique categories
 export const getUniqueCategories = (): string[] => {
-  return [...new Set(mockEvents.map((event) => event.category))].sort();
+  return Array.from(new Set(mockEvents.map((event) => event.category))).sort();
 };
