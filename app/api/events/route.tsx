@@ -1,57 +1,40 @@
-// app/api/events/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { mockEvents } from "@/lib/data";
+import { DatabaseService } from "@/lib/database";
+import { ApiResponse, Event } from "@/types";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get("search");
-    const city = searchParams.get("city");
-    const state = searchParams.get("state");
-    const category = searchParams.get("category");
-    const priceRange = searchParams.get("priceRange");
 
-    let filteredEvents = [...mockEvents];
+    const filters = {
+      search: searchParams.get("search") || undefined,
+      city: searchParams.get("city") || undefined,
+      state: searchParams.get("state") || undefined,
+      category: searchParams.get("category") || undefined,
+      source: searchParams.get("source") || undefined,
+      limit: parseInt(searchParams.get("limit") || "100"),
+    };
 
-    // Filter by search term
-    if (search) {
-      const searchTerm = search.toLowerCase();
-      filteredEvents = filteredEvents.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchTerm) ||
-          event.description.toLowerCase().includes(searchTerm) ||
-          event.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
-      );
-    }
+    // Remove empty filters
+    Object.keys(filters).forEach((key) => {
+      if (filters[key as keyof typeof filters] === undefined) {
+        delete filters[key as keyof typeof filters];
+      }
+    });
 
-    // Filter by city
-    if (city && city !== "all") {
-      filteredEvents = filteredEvents.filter(
-        (event) => event.city.toLowerCase() === city.toLowerCase()
-      );
-    }
+    console.log("🔍 Fetching events with filters:", filters);
 
-    // Filter by state
-    if (state && state !== "all") {
-      filteredEvents = filteredEvents.filter(
-        (event) => event.state.toLowerCase() === state.toLowerCase()
-      );
-    }
+    const events = await DatabaseService.getEvents(filters);
 
-    // Filter by category
-    if (category && category !== "all") {
-      filteredEvents = filteredEvents.filter(
-        (event) => event.category === category
-      );
-    }
+    // Apply additional client-side filters for compatibility
+    let filteredEvents = [...events];
 
     // Filter by price range
-    if (priceRange) {
-      if (priceRange === "free") {
-        filteredEvents = filteredEvents.filter((event) => event.isFree);
-      } else if (priceRange === "paid") {
-        filteredEvents = filteredEvents.filter((event) => !event.isFree);
-      }
+    const priceRange = searchParams.get("priceRange");
+    if (priceRange === "free") {
+      filteredEvents = filteredEvents.filter((event) => event.isFree);
+    } else if (priceRange === "paid") {
+      filteredEvents = filteredEvents.filter((event) => !event.isFree);
     }
 
     // Sort by date (upcoming events first)
@@ -59,17 +42,22 @@ export async function GET(request: NextRequest) {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    return NextResponse.json({
+    console.log(`✅ Returning ${filteredEvents.length} events`);
+
+    const response: ApiResponse<Event[]> = {
       success: true,
       data: filteredEvents,
-    });
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-      },
-      { status: 500 }
-    );
+    console.error("❌ Error fetching events:", error);
+
+    const response: ApiResponse<Event[]> = {
+      success: false,
+      error: error instanceof Error ? error.message : "Internal server error",
+    };
+
+    return NextResponse.json(response, { status: 500 });
   }
 }

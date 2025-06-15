@@ -1,6 +1,7 @@
 import { Event, User } from "@/types";
 
-export const mockEvents: Event[] = [
+// Original curated events
+export const curatedEvents: Event[] = [
   {
     id: "1",
     title: "Sunburn Arena ft. Martin Garrix",
@@ -76,99 +77,155 @@ export const mockEvents: Event[] = [
     organizer: "Ministry of AYUSH",
     tags: ["yoga", "wellness", "meditation", "health", "free"],
   },
+];
+
+// Aggregated events from external sources (these would come from your scraping system)
+export const aggregatedEvents: Event[] = [
   {
-    id: "4",
-    title: "Diljit Dosanjh Live in Concert",
+    id: "eventbrite_mumbai_1",
+    title: "Digital Marketing Summit Mumbai 2025",
     description:
-      "The Punjabi superstar brings his electrifying performance to Hyderabad.",
+      "Learn the latest digital marketing strategies from industry experts.",
     detailedDescription:
-      'Get ready for an unforgettable night as Diljit Dosanjh, the crown jewel of Punjabi entertainment, takes the stage in Hyderabad. Known for his chart-topping hits and charismatic stage presence, Diljit will perform his greatest hits including "G.O.A.T", "Born to Shine", and many more. This high-energy concert promises incredible live music, stunning visuals, and an atmosphere that will keep you dancing all night long.',
-    date: "2025-09-10",
-    time: "19:30",
-    venueName: "Gachibowli Stadium",
-    venueAddress: "Gachibowli, Hyderabad",
-    city: "Hyderabad",
-    state: "Telangana",
+      "Join us for a comprehensive digital marketing summit featuring keynote speakers from Google, Facebook, and leading Indian startups. Learn about SEO, social media marketing, content strategy, and emerging trends in digital advertising. Perfect for marketing professionals, business owners, and students.",
+    date: "2025-08-15",
+    time: "09:00",
+    venueName: "Mumbai Convention Center",
+    venueAddress: "Goregaon East, Mumbai",
+    city: "Mumbai",
+    state: "Maharashtra",
     imageUrl:
-      "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
-    price: 3000,
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
+    price: 1500,
     isFree: false,
-    latitude: 17.4239,
-    longitude: 78.3797,
-    category: "music",
-    organizer: "BookMyShow Live",
-    tags: ["punjabi", "bollywood", "concert", "live music", "entertainment"],
+    latitude: 19.1663,
+    longitude: 72.8526,
+    category: "business",
+    organizer: "Eventbrite",
+    tags: ["digital marketing", "business", "networking", "conference"],
   },
   {
-    id: "5",
-    title: "Street Food Festival Chennai",
+    id: "meetup_delhi_1",
+    title: "Delhi Startup Networking Meetup",
     description:
-      "Explore the best street food from across Tamil Nadu and South India.",
+      "Monthly networking event for entrepreneurs and startup enthusiasts.",
     detailedDescription:
-      "Embark on a culinary journey through the diverse flavors of South Indian street food. This weekend festival features over 50 food stalls serving authentic delicacies from idli-sambar to crispy dosas, spicy chaats, and traditional sweets. Meet local chefs, participate in cooking demonstrations, and enjoy live cultural performances while savoring the incredible variety of regional cuisines.",
-    date: "2025-07-28",
+      "Connect with fellow entrepreneurs, investors, and startup enthusiasts in Delhi. This monthly meetup features pitch sessions, networking opportunities, and discussions about the latest trends in the Indian startup ecosystem. Whether you're a seasoned entrepreneur or just starting out, this event is perfect for building valuable connections.",
+    date: "2025-07-20",
+    time: "18:30",
+    venueName: "Impact Hub Delhi",
+    venueAddress: "Connaught Place, New Delhi",
+    city: "New Delhi",
+    state: "Delhi",
+    imageUrl:
+      "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
+    price: 0,
+    isFree: true,
+    latitude: 28.6315,
+    longitude: 77.2167,
+    category: "business",
+    organizer: "Delhi Startup Community",
+    tags: ["startup", "networking", "entrepreneurs", "free", "monthly"],
+  },
+  {
+    id: "bookmyshow_bangalore_1",
+    title: "Bangalore Music Festival 2025",
+    description:
+      "Three-day music festival featuring indie artists and popular bands.",
+    detailedDescription:
+      "Experience the best of Indian and international music at Bangalore Music Festival 2025. This three-day extravaganza features performances by indie artists, popular bands, and emerging talents across multiple genres including rock, pop, electronic, and fusion music. Food stalls, art installations, and interactive experiences await music lovers.",
+    date: "2025-09-05",
+    time: "16:00",
+    venueName: "Palace Grounds",
+    venueAddress: "Jayamahal Road, Bengaluru",
+    city: "Bengaluru",
+    state: "Karnataka",
+    imageUrl:
+      "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
+    price: 2000,
+    isFree: false,
+    latitude: 13.0067,
+    longitude: 77.5834,
+    category: "music",
+    organizer: "BookMyShow",
+    tags: ["music festival", "indie", "bands", "three days", "multiple genres"],
+  },
+  {
+    id: "eventbrite_chennai_1",
+    title: "Chennai Food & Culture Festival",
+    description: "Celebrate the rich culinary heritage and culture of Chennai.",
+    detailedDescription:
+      "Immerse yourself in the vibrant food and cultural scene of Chennai. This festival showcases traditional Tamil cuisine, street food, cultural performances, art exhibitions, and cooking demonstrations by renowned chefs. Experience the authentic flavors of South India while enjoying classical music and dance performances.",
+    date: "2025-08-28",
     time: "17:00",
-    venueName: "Marina Beach",
+    venueName: "Marina Beach Ground",
     venueAddress: "Marina Beach Road, Chennai",
     city: "Chennai",
     state: "Tamil Nadu",
     imageUrl:
       "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
-    price: 250,
+    price: 300,
     isFree: false,
-    latitude: 13.0827,
-    longitude: 80.2707,
+    latitude: 13.0478,
+    longitude: 80.2785,
     category: "food",
-    organizer: "Chennai Food Network",
-    tags: ["street food", "south indian", "festival", "culinary", "cultural"],
+    organizer: "Chennai Cultural Society",
+    tags: [
+      "food festival",
+      "tamil culture",
+      "south indian",
+      "cultural performances",
+    ],
   },
   {
-    id: "6",
-    title: "Zakir Khan Stand-Up Comedy",
+    id: "meetup_pune_1",
+    title: "Pune Tech Talks: AI & Machine Learning",
     description:
-      "The king of storytelling comedy brings his latest show to Kolkata.",
+      "Monthly tech talks focusing on AI, ML, and emerging technologies.",
     detailedDescription:
-      "Join Zakir Khan for an evening filled with laughter as he presents his latest stand-up comedy special. Known for his relatable humor and brilliant storytelling, Zakir will take you through hilarious observations about modern life, relationships, and the quirks of being Indian. This intimate venue setting promises an unforgettable comedy experience with one of India's most beloved comedians.",
-    date: "2025-08-05",
-    time: "20:00",
-    venueName: "Science City Auditorium",
-    venueAddress: "JBS Haldane Avenue, Kolkata",
-    city: "Kolkata",
-    state: "West Bengal",
-    imageUrl:
-      "https://images.unsplash.com/photo-1597149266671-9b71adbba695?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
-    price: 1200,
-    isFree: false,
-    latitude: 22.5726,
-    longitude: 88.3639,
-    category: "comedy",
-    organizer: "Comedy Central India",
-    tags: ["stand-up", "comedy", "hindi", "storytelling", "entertainment"],
-  },
-  {
-    id: "7",
-    title: "Art & Design Conference 2025",
-    description:
-      "Leading designers and artists share insights on creativity and innovation.",
-    detailedDescription:
-      "The premier gathering for creative professionals featuring workshops, exhibitions, and talks by renowned artists, designers, and creative directors. Explore the latest trends in digital art, sustainable design, and creative technology. Network with industry leaders, participate in hands-on workshops, and get inspired by the future of art and design. Perfect for designers, artists, students, and creative enthusiasts.",
-    date: "2025-09-15",
-    time: "10:00",
-    venueName: "Pune International Centre",
-    venueAddress: "11 Koregaon Park, Pune",
+      "Join Pune's tech community for an evening of insightful talks on artificial intelligence and machine learning. This month's session features presentations from data scientists at leading tech companies, hands-on workshops, and networking opportunities. Perfect for developers, data scientists, and technology enthusiasts.",
+    date: "2025-07-25",
+    time: "19:00",
+    venueName: "Pune Tech Park",
+    venueAddress: "Hinjewadi Phase 1, Pune",
     city: "Pune",
     state: "Maharashtra",
     imageUrl:
-      "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
-    price: 2000,
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
+    price: 0,
+    isFree: true,
+    latitude: 18.5893,
+    longitude: 73.7389,
+    category: "technology",
+    organizer: "Pune Tech Community",
+    tags: ["AI", "machine learning", "tech talks", "networking", "free"],
+  },
+  {
+    id: "bookmyshow_hyderabad_1",
+    title: "Stand-up Comedy Night Hyderabad",
+    description: "An evening of laughter with popular stand-up comedians.",
+    detailedDescription:
+      "Get ready for a night full of laughter with some of India's most popular stand-up comedians. This comedy show features both established and emerging comedians performing their latest material. Expect witty observations, hilarious stories, and interactive comedy that will keep you entertained throughout the evening.",
+    date: "2025-08-10",
+    time: "20:00",
+    venueName: "Hyderabad Comedy Club",
+    venueAddress: "Banjara Hills, Hyderabad",
+    city: "Hyderabad",
+    state: "Telangana",
+    imageUrl:
+      "https://images.unsplash.com/photo-1597149266671-9b71adbba695?w=800&h=400&auto=format&fit=crop&ixlib=rb-4.0.3",
+    price: 800,
     isFree: false,
-    latitude: 18.5204,
-    longitude: 73.8567,
-    category: "arts",
-    organizer: "Design Council India",
-    tags: ["design", "art", "conference", "creativity", "workshops"],
+    latitude: 17.4126,
+    longitude: 78.4071,
+    category: "comedy",
+    organizer: "Comedy Nights",
+    tags: ["stand-up comedy", "entertainment", "laughter", "popular comedians"],
   },
 ];
+
+// Combined events (curated + aggregated)
+export const mockEvents: Event[] = [...curatedEvents, ...aggregatedEvents];
 
 // Mock users for POC
 export const mockUsers: User[] = [
@@ -176,7 +233,7 @@ export const mockUsers: User[] = [
     id: "1",
     email: "demo@eventsphere.in",
     username: "demo_user",
-    password: "password123", // In real app, this would be hashed
+    password: "password123",
     firstName: "Demo",
     lastName: "User",
     phone: "+91-9876543210",
@@ -184,17 +241,57 @@ export const mockUsers: User[] = [
   },
 ];
 
-// Helper function to get unique cities
+// Helper functions
 export const getUniqueCities = (): string[] => {
   return Array.from(new Set(mockEvents.map((event) => event.city))).sort();
 };
 
-// Helper function to get unique states
 export const getUniqueStates = (): string[] => {
   return Array.from(new Set(mockEvents.map((event) => event.state))).sort();
 };
 
-// Helper function to get unique categories
 export const getUniqueCategories = (): string[] => {
   return Array.from(new Set(mockEvents.map((event) => event.category))).sort();
+};
+
+// Get events by source
+export const getCuratedEvents = (): Event[] => {
+  return curatedEvents;
+};
+
+export const getAggregatedEvents = (): Event[] => {
+  return aggregatedEvents;
+};
+
+// Filter events by source
+export const getEventsBySource = (
+  source: "curated" | "aggregated" | "all" = "all"
+): Event[] => {
+  switch (source) {
+    case "curated":
+      return curatedEvents;
+    case "aggregated":
+      return aggregatedEvents;
+    default:
+      return mockEvents;
+  }
+};
+
+// Get event statistics
+export const getEventStatistics = () => {
+  return {
+    total: mockEvents.length,
+    curated: curatedEvents.length,
+    aggregated: aggregatedEvents.length,
+    byCategory: getUniqueCategories().map((category) => ({
+      category,
+      count: mockEvents.filter((event) => event.category === category).length,
+    })),
+    byCity: getUniqueCities().map((city) => ({
+      city,
+      count: mockEvents.filter((event) => event.city === city).length,
+    })),
+    freeEvents: mockEvents.filter((event) => event.isFree).length,
+    paidEvents: mockEvents.filter((event) => !event.isFree).length,
+  };
 };

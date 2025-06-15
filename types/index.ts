@@ -2,21 +2,27 @@ export interface Event {
   id: string;
   title: string;
   description: string;
-  detailedDescription: string;
   date: string;
   time: string;
   venueName: string;
   venueAddress: string;
   city: string;
   state: string;
-  imageUrl: string;
+  imageUrl?: string;
   price: number;
   isFree: boolean;
-  latitude: number;
-  longitude: number;
-  category: EventCategory;
+  category: string;
   organizer: string;
+  sourceId?: string;
+  sourceName?: string;
   tags: string[];
+  detailedDescription?: string;
+}
+
+export interface ScrapingStatus {
+  totalEventsInDatabase: number;
+  lastRun: string | null;
+  eventsBySource?: Array<{ source: string; count: number }>;
 }
 
 export type EventCategory =

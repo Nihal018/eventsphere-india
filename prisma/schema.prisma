@@ -1,0 +1,81 @@
+// prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model Event {
+    id                  String  @id @default(cuid())
+    title               String
+    description         String
+    detailedDescription String?
+    date                String
+    time                String
+    venueName           String
+    venueAddress        String
+    city                String
+    state               String
+    imageUrl            String?
+    price               Float   @default(0)
+    isFree              Boolean @default(false)
+    latitude            Float?
+    longitude           Float?
+    category            String
+    organizer           String
+    tags                String // JSON string array
+
+    // Aggregation metadata
+    sourceId         String?
+    sourceName       String?
+    sourceUrl        String?
+    originalId       String?
+    lastUpdated      DateTime @default(now())
+    isVerified       Boolean  @default(false)
+    aggregationScore Int      @default(0)
+
+    // Timestamps
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([city])
+    @@index([category])
+    @@index([date])
+    @@index([sourceId])
+}
+
+model ScrapingLog {
+    id            String   @id @default(cuid())
+    source        String
+    success       Boolean
+    eventsFound   Int      @default(0)
+    eventsAdded   Int      @default(0)
+    eventsUpdated Int      @default(0)
+    errors        String? // JSON string array
+    duration      Int? // milliseconds
+    timestamp     DateTime @default(now())
+
+    @@index([source])
+    @@index([timestamp])
+}
+
+model EventSource {
+    id             String    @id
+    name           String    @unique
+    baseUrl        String
+    enabled        Boolean   @default(true)
+    apiKey         String?
+    rateLimit      Int       @default(2000) // milliseconds
+    lastScrapeTime DateTime?
+    totalEvents    Int       @default(0)
+    successRate    Float     @default(100.0)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

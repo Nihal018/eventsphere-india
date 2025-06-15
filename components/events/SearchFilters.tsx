@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-
-import { Search, Filter, X } from "lucide-react";
+import { SlidersHorizontal as Filter } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { FilterOptions } from "@/types";
 import {
   Select,

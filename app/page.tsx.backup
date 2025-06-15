@@ -1,4 +1,5 @@
 // app/page.tsx - Updated to use real data while keeping original UI
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -143,7 +144,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-purple-900 hover:opacity-90 px-8 py-4 text-lg font-semibold"
+                  className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
                   onClick={triggerScraping}
                   disabled={isRefreshing}
                 >
