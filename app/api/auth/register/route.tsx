@@ -1,7 +1,13 @@
-// app/api/auth/register/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { mockUsers } from "@/lib/data";
-import { User } from "@/types";
+import { prisma } from "@/lib/database";
+import {
+  hashPassword,
+  generateJWT,
+  sanitizeUser,
+  isValidEmail,
+  isValidPassword,
+  isValidUsername,
+} from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,52 +25,113 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
-    const existingUser = mockUsers.find(
-      (user) => user.email === email || user.username === username
-    );
-
-    if (existingUser) {
+    // Validate email format
+    if (!isValidEmail(email)) {
       return NextResponse.json(
         {
           success: false,
-          message: "User already exists with this email or username",
+          message: "Please enter a valid email address",
         },
         { status: 400 }
       );
     }
 
-    // Create new user
-    const newUser: User = {
-      id: (mockUsers.length + 1).toString(),
-      email,
-      username,
-      password, // In real app, hash this password
-      firstName,
-      lastName,
-      phone,
-      createdAt: new Date().toISOString(),
-    };
+    // Validate username
+    const usernameValidation = isValidUsername(username);
+    if (!usernameValidation.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: usernameValidation.message,
+        },
+        { status: 400 }
+      );
+    }
 
-    // Add to mock users array
-    mockUsers.push(newUser);
+    // Validate password
+    const passwordValidation = isValidPassword(password);
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: passwordValidation.message,
+        },
+        { status: 400 }
+      );
+    }
 
-    // Return success without password
-    const { password: _, ...userWithoutPassword } = newUser;
+    // Check if user already exists (email or username)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email.toLowerCase() },
+          { username: username.toLowerCase() },
+        ],
+      },
+    });
+
+    if (existingUser) {
+      const field =
+        existingUser.email === email.toLowerCase() ? "email" : "username";
+      return NextResponse.json(
+        {
+          success: false,
+          message: `A user with this ${field} already exists`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Hash the password
+    const hashedPassword = await hashPassword(password);
+
+    // Create new user in database
+    const newUser = await prisma.user.create({
+      data: {
+        email: email.toLowerCase().trim(),
+        username: username.toLowerCase().trim(),
+        password: hashedPassword,
+        firstName: firstName?.trim() || null,
+        lastName: lastName?.trim() || null,
+        phone: phone?.trim() || null,
+      },
+    });
+
+    // Generate JWT token
+    const sanitizedUser = sanitizeUser(newUser);
+    const token = generateJWT(sanitizedUser);
+
+    console.log(`✅ New user registered: ${newUser.email}`);
 
     return NextResponse.json(
       {
         success: true,
-        user: userWithoutPassword,
+        token,
+        user: sanitizedUser,
         message: "User registered successfully",
       },
       { status: 201 }
     );
   } catch (error) {
+    console.error("Registration error:", error);
+
+    // Handle specific database errors
+    if (error instanceof Error) {
+      if (error.message.includes("Unique constraint")) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "A user with this email or username already exists",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     return NextResponse.json(
       {
         success: false,
-        message: "Internal server error",
+        message: "Internal server error. Please try again.",
       },
       { status: 500 }
     );

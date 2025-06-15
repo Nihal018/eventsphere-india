@@ -1,6 +1,13 @@
-// app/api/auth/login/route.ts
+// app/api/auth/login/route.ts - Real database login
+
 import { NextRequest, NextResponse } from "next/server";
-import { mockUsers } from "@/lib/data";
+import { prisma } from "@/lib/database";
+import {
+  comparePassword,
+  generateJWT,
+  sanitizeUser,
+  isValidEmail,
+} from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,13 +24,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Determine if input is email or username
+    const isEmail = isValidEmail(email);
+
     // Find user by email or username
-    const user = mockUsers.find(
-      (u) =>
-        (u.email === email || u.username === email) && u.password === password
-    );
+    const user = await prisma.user.findFirst({
+      where: isEmail
+        ? { email: email.toLowerCase() }
+        : { username: email.toLowerCase() },
+    });
 
     if (!user) {
+      // Don't reveal whether email/username exists
       return NextResponse.json(
         {
           success: false,
@@ -33,23 +45,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate a simple token (in real app, use proper JWT)
-    const token = `eventsphere_token_${user.id}_${Date.now()}`;
+    // Compare password with stored hash
+    const passwordMatch = await comparePassword(password, user.password);
 
-    // Return success without password
-    const { password: _, ...userWithoutPassword } = user;
+    if (!passwordMatch) {
+      console.log(`❌ Failed login attempt for: ${user.email}`);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid credentials",
+        },
+        { status: 401 }
+      );
+    }
+
+    // Generate JWT token
+    const sanitizedUser = sanitizeUser(user);
+    const token = generateJWT(sanitizedUser);
+
+    console.log(`✅ Successful login: ${user.email}`);
 
     return NextResponse.json({
       success: true,
       token,
-      user: userWithoutPassword,
+      user: sanitizedUser,
       message: "Login successful",
     });
   } catch (error) {
+    console.error("Login error:", error);
+
     return NextResponse.json(
       {
         success: false,
-        message: "Internal server error",
+        message: "Internal server error. Please try again.",
       },
       { status: 500 }
     );

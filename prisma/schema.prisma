@@ -1,6 +1,4 @@
-// prisma/schema.prisma
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma - Updated with User model
 
 generator client {
     provider = "prisma-client-js"
@@ -11,6 +9,23 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// User model for authentication
+model User {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    username  String   @unique
+    password  String // Will be hashed with bcrypt
+    firstName String?
+    lastName  String?
+    phone     String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([email])
+    @@index([username])
+}
+
+// Existing Event model (keep as is)
 model Event {
     id                  String  @id @default(cuid())
     title               String
@@ -50,6 +65,7 @@ model Event {
     @@index([sourceId])
 }
 
+// Existing ScrapingLog model (keep as is)
 model ScrapingLog {
     id            String   @id @default(cuid())
     source        String
@@ -65,8 +81,9 @@ model ScrapingLog {
     @@index([timestamp])
 }
 
+// Existing EventSource model (keep as is)
 model EventSource {
-    id             String    @id
+    id             String    @id @default(cuid())
     name           String    @unique
     baseUrl        String
     enabled        Boolean   @default(true)
