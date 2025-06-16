@@ -1,10 +1,10 @@
-// prisma/schema.prisma - Updated with User model and Event Management (SQLite Compatible)
+// prisma/schema.prisma - PostgreSQL version
 generator client {
     provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
@@ -30,13 +30,13 @@ model User {
     @@index([role])
 }
 
-// Enhanced Event model (keeping existing fields + adding new ones)
+// Enhanced Event model
 model Event {
     id                  String  @id @default(cuid())
     title               String
     description         String
     detailedDescription String?
-    shortDesc           String? // New: Brief description for cards
+    shortDesc           String?
     date                String // Keeping as String for compatibility
     time                String
     venueName           String
@@ -44,21 +44,21 @@ model Event {
     city                String
     state               String
     imageUrl            String?
-    imagePath           String? // New: For uploaded images
+    imagePath           String?
     price               Float   @default(0)
     isFree              Boolean @default(false)
     latitude            Float?
     longitude           Float?
     category            String
-    organizer           String // Keeping original field for compatibility
-    tags                String // JSON string array
+    organizer           String // Legacy field for compatibility
+    tags                String  @default("[]") // JSON string array
 
     // New organizer management fields
-    organizerId   String? // New: Link to User who created this event
+    organizerId   String?
     organizerUser User?   @relation(fields: [organizerId], references: [id], onDelete: SetNull)
-    maxAttendees  Int? // New: Maximum number of attendees
+    maxAttendees  Int?
     status        String  @default("PUBLISHED") // DRAFT, PUBLISHED, CANCELLED, COMPLETED
-    isUserCreated Boolean @default(false) // New: Distinguish user-created vs scraped events
+    isUserCreated Boolean @default(false)
 
     // Existing aggregation metadata
     sourceId         String?
@@ -85,7 +85,7 @@ model Event {
     @@index([isUserCreated])
 }
 
-// New: Booking model for event attendance
+// Booking model for event attendance
 model Booking {
     id      String @id @default(cuid())
     userId  String
@@ -105,7 +105,7 @@ model Booking {
     @@index([eventId])
 }
 
-// Existing ScrapingLog model (keep as is)
+// Existing ScrapingLog model
 model ScrapingLog {
     id            String   @id @default(cuid())
     source        String
@@ -113,22 +113,22 @@ model ScrapingLog {
     eventsFound   Int      @default(0)
     eventsAdded   Int      @default(0)
     eventsUpdated Int      @default(0)
-    errors        String? // JSON string array
-    duration      Int? // milliseconds
+    errors        String?
+    duration      Int?
     timestamp     DateTime @default(now())
 
     @@index([source])
     @@index([timestamp])
 }
 
-// Existing EventSource model (keep as is)
+// Existing EventSource model
 model EventSource {
     id             String    @id @default(cuid())
     name           String    @unique
     baseUrl        String
     enabled        Boolean   @default(true)
     apiKey         String?
-    rateLimit      Int       @default(2000) // milliseconds
+    rateLimit      Int       @default(2000)
     lastScrapeTime DateTime?
     totalEvents    Int       @default(0)
     successRate    Float     @default(100.0)

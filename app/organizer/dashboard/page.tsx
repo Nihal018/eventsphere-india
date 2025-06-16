@@ -384,7 +384,7 @@ const OrganizerDashboard = () => {
                           {event.maxAttendees && ` / ${event.maxAttendees}`}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
+                          <div className="flex space-x-4">
                             <button
                               onClick={() =>
                                 (window.location.href = `/events/${event.id}`)
@@ -392,7 +392,7 @@ const OrganizerDashboard = () => {
                               className="text-blue-600 hover:text-blue-900"
                               title="View Event"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() =>
@@ -401,14 +401,14 @@ const OrganizerDashboard = () => {
                               className="text-gray-600 hover:text-gray-900"
                               title="Edit Event"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleDeleteEvent(event.id)}
                               className="text-red-600 hover:text-red-900"
                               title="Delete Event"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-5 h-5" />
                             </button>
                           </div>
                         </td>
