@@ -72,11 +72,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (existingBooking) {
+    if (existingBooking?.status === BOOKING_STATUS.CONFIRMED) {
       return NextResponse.json(
         { success: false, message: "You have already booked this event" },
         { status: 400 }
       );
+    } else if (existingBooking?.status === BOOKING_STATUS.CANCELLED) {
+      // If booking is cancelled, we can allow rebooking
+      await prisma.booking.delete({
+        where: {
+          userId_eventId: {
+            userId: decoded.userId,
+            eventId: eventId,
+          },
+        },
+      });
     }
 
     // Create booking

@@ -76,8 +76,6 @@ const MyBookingsPage = () => {
   };
 
   const cancelBooking = async (bookingId: string) => {
-    if (!confirm("Are you sure you want to cancel this booking?")) return;
-
     try {
       const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/bookings/${bookingId}`, {
@@ -89,7 +87,6 @@ const MyBookingsPage = () => {
 
       const data = await response.json();
       if (data.success) {
-        alert("Booking cancelled successfully");
         fetchBookings();
       } else {
         alert(data.message || "Failed to cancel booking");

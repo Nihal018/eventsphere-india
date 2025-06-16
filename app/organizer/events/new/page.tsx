@@ -196,7 +196,6 @@ const CreateEventForm = () => {
       const data = await response.json();
 
       if (data.success) {
-        alert(`Event ${saveAs.toLowerCase()} successfully!`);
         // Redirect to organizer dashboard
         window.location.href = "/organizer/dashboard";
       } else {

@@ -320,11 +320,6 @@ export default function EventDetailPage() {
       return;
     }
 
-    // Confirmation dialog
-    if (!confirm("Are you sure you want to cancel this booking?")) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("auth_token");
 

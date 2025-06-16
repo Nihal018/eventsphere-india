@@ -1,7 +1,7 @@
 // app/api/auth/become-organizer/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/database";
-import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
+import { verifyJWT, extractTokenFromHeader, generateJWT } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,8 +71,17 @@ export async function POST(request: NextRequest) {
     // Return success without password
     const { password: _, ...userWithoutPassword } = updatedUser;
 
+    const newToken = generateJWT({
+      id: updatedUser.id,
+      email: updatedUser.email,
+      username: updatedUser.username,
+      role: updatedUser.role, // Include the new role
+      createdAt: user.createdAt.toISOString(),
+    });
+
     return NextResponse.json({
       success: true,
+      token: newToken, // Add this line
       user: userWithoutPassword,
       message:
         "Congratulations! You are now an event organizer. You can start creating events!",

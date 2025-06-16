@@ -151,7 +151,7 @@ export default function HomePage() {
                       isRefreshing ? "animate-spin" : ""
                     }`}
                   />
-                  {isRefreshing ? "Refreshing..." : "Refresh Events"}
+                  {isRefreshing ? "Refreshing..." : "Scrape New Events"}
                 </Button>
               </div>
             </div>
@@ -226,7 +226,7 @@ export default function HomePage() {
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                   Loading Events...
                 </h2>
-                <div className="animate-pulse space-y-4">
+                <div className="animate-pulse space-y-4 mb-8">
                   <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
@@ -237,6 +237,16 @@ export default function HomePage() {
                     ))}
                   </div>
                 </div>
+                <Button
+                  onClick={fetchEvents}
+                  disabled={loading}
+                  size="lg"
+                  variant="outline"
+                  className="px-8"
+                >
+                  <RefreshCw className="mr-2 h-5 w-5" />
+                  Try Again
+                </Button>
               </div>
             </div>
           </section>
@@ -249,22 +259,24 @@ export default function HomePage() {
                 No Events Yet
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Click "Refresh Events" to load the latest events from our
-                sources
+                No events found in database. Try refreshing or load from
+                sources.
               </p>
-              <Button
-                onClick={triggerScraping}
-                disabled={isRefreshing}
-                size="lg"
-                className="px-8"
-              >
-                <RefreshCw
-                  className={`mr-2 h-5 w-5 ${
-                    isRefreshing ? "animate-spin" : ""
-                  }`}
-                />
-                {isRefreshing ? "Loading Events..." : "Load Events Now"}
-              </Button>
+              <div className="flex gap-4 justify-center">
+                <Button
+                  onClick={triggerScraping}
+                  disabled={isRefreshing}
+                  size="lg"
+                  className="px-8"
+                >
+                  <RefreshCw
+                    className={`mr-2 h-5 w-5 ${
+                      isRefreshing ? "animate-spin" : ""
+                    }`}
+                  />
+                  {isRefreshing ? "Loading Events..." : "Load from Sources"}
+                </Button>
+              </div>
             </div>
           </section>
         )}
@@ -369,16 +381,6 @@ export default function HomePage() {
                 >
                   Browse All Events
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-
-              <Link href="/admin/scraping">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
-                >
-                  📊 Admin Dashboard
                 </Button>
               </Link>
             </div>

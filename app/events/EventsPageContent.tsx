@@ -283,7 +283,7 @@ export default function EventsPageContent() {
 
           {/* Refresh Button */}
           <Button
-            onClick={triggerScraping}
+            onClick={fetchEvents}
             disabled={refreshing || loading}
             variant="outline"
             className="flex items-center space-x-2"

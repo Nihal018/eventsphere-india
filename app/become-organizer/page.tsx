@@ -41,6 +41,7 @@ const BecomeOrganizerComponent = () => {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem("auth_token", data.token); // Add this line
         setSuccess(true);
         setTimeout(() => {
           window.location.href = "/organizer/dashboard";
