@@ -47,14 +47,20 @@ export default function EventsPage() {
 
         // Extract unique values for filters
         const uniqueCities = [
-          ...new Set(data.data.map((event: Event) => event.city)),
-        ].sort();
+          ...new Set(
+            data.data.map((event: Event) => event.city).filter(Boolean)
+          ),
+        ].sort() as string[];
         const uniqueStates = [
-          ...new Set(data.data.map((event: Event) => event.state)),
-        ].sort();
+          ...new Set(
+            data.data.map((event: Event) => event.state).filter(Boolean)
+          ),
+        ].sort() as string[];
         const uniqueCategories = [
-          ...new Set(data.data.map((event: Event) => event.category)),
-        ].sort();
+          ...new Set(
+            data.data.map((event: Event) => event.category).filter(Boolean)
+          ),
+        ].sort() as string[];
 
         setCities(uniqueCities);
         setStates(uniqueStates);
