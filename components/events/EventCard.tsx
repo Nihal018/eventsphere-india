@@ -128,7 +128,9 @@ export default function EventCard({ event }: EventCardProps) {
               </div>
 
               <div className="flex flex-wrap gap-1">
-                {event.tags && event.tags.length > 0 ? (
+                {event.tags &&
+                Array.isArray(event.tags) &&
+                event.tags.length > 0 ? (
                   event.tags.slice(0, 2).map((tag, index) => (
                     <span
                       key={index}
