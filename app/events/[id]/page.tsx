@@ -134,7 +134,11 @@ export default function EventDetailPage() {
 
   useEffect(() => {
     const checkExistingBooking = async () => {
-      if (!isAuthenticated() || !event) return;
+      // Always set checkingBooking to false for unauthenticated users
+      if (!isAuthenticated() || !event) {
+        setCheckingBooking(false);
+        return;
+      }
 
       try {
         const token = localStorage.getItem("auth_token");
@@ -152,7 +156,7 @@ export default function EventDetailPage() {
           );
           if (existingBooking) {
             setHasBooked(true);
-            setUserBookingId(existingBooking.id); // Store the booking ID
+            setUserBookingId(existingBooking.id);
           } else {
             setHasBooked(false);
             setUserBookingId(null);
@@ -194,8 +198,6 @@ export default function EventDetailPage() {
       const data = await response.json();
 
       if (data.success) {
-        showToast("Event booked successfully! 🎉", "success");
-
         const bookingDetails = {
           eventId: event.id,
           eventTitle: event.title,

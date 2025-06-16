@@ -42,7 +42,7 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`}>
-      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border-0 shadow-md">
+      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border-0 shadow-md flex flex-col h-full">
         <div className="relative h-48 overflow-hidden">
           <Image
             src={event.imageUrl || "/placeholder-event.jpg"}
