@@ -1,16 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { SlidersHorizontal as Filter } from "lucide-react";
-import { Search, X } from "lucide-react";
+import { Filter } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import { FilterOptions } from "@/types";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@radix-ui/react-select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -19,7 +12,7 @@ interface SearchFiltersProps {
   cities: string[];
   states: string[];
   categories: string[];
-  initialFilters?: FilterOptions; // Add initial filters prop
+  initialFilters?: FilterOptions;
 }
 
 export default function SearchFilters({
@@ -44,7 +37,6 @@ export default function SearchFilters({
   useEffect(() => {
     if (initialFilters) {
       setFilters(initialFilters);
-      // Auto-open filters if any are active from URL
       const hasActiveFilters =
         initialFilters.search ||
         initialFilters.city ||
@@ -57,13 +49,12 @@ export default function SearchFilters({
     }
   }, [initialFilters]);
 
-  // Debounced filter change to avoid too many calls
+  // Debounced filter change
   const debouncedFilterChange = useCallback(
     (newFilters: FilterOptions) => {
       const timeoutId = setTimeout(() => {
         onFilterChange(newFilters);
-      }, 300); // 300ms debounce
-
+      }, 300);
       return () => clearTimeout(timeoutId);
     },
     [onFilterChange]
@@ -97,6 +88,75 @@ export default function SearchFilters({
     filters.state ||
     filters.category ||
     filters.priceRange !== "all";
+
+  // Custom Select Component
+  const CustomSelect = ({
+    value,
+    onValueChange,
+    placeholder,
+    options,
+    label,
+  }: {
+    value: string;
+    onValueChange: (value: string) => void;
+    placeholder: string;
+    options: string[];
+    label: string;
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <div className="relative">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between"
+        >
+          <span
+            className={
+              value && value !== "all" ? "text-gray-900" : "text-gray-500"
+            }
+          >
+            {value && value !== "all" ? value : placeholder}
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 text-gray-400 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+            <div
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+              onClick={() => {
+                onValueChange("all");
+                setIsOpen(false);
+              }}
+            >
+              {placeholder}
+            </div>
+            {options.map((option) => (
+              <div
+                key={option}
+                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 capitalize"
+                onClick={() => {
+                  onValueChange(option);
+                  setIsOpen(false);
+                }}
+              >
+                {option}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -141,101 +201,44 @@ export default function SearchFilters({
 
       {/* Filter Options */}
       {isFilterOpen && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fadeIn">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              City
-            </label>
-            <Select
-              value={filters.city || "all"}
-              onValueChange={(value) =>
-                handleInputChange("city", value === "all" ? "" : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select city" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cities</SelectItem>
-                {cities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-in slide-in-from-top-2 duration-200">
+          <CustomSelect
+            value={filters.city || "all"}
+            onValueChange={(value) =>
+              handleInputChange("city", value === "all" ? "" : value)
+            }
+            placeholder="All Cities"
+            options={cities}
+            label="City"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              State
-            </label>
-            <Select
-              value={filters.state || "all"}
-              onValueChange={(value) =>
-                handleInputChange("state", value === "all" ? "" : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select state" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All States</SelectItem>
-                {states.map((state) => (
-                  <SelectItem key={state} value={state}>
-                    {state}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <CustomSelect
+            value={filters.state || "all"}
+            onValueChange={(value) =>
+              handleInputChange("state", value === "all" ? "" : value)
+            }
+            placeholder="All States"
+            options={states}
+            label="State"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
-            <Select
-              value={filters.category || "all"}
-              onValueChange={(value) =>
-                handleInputChange("category", value === "all" ? "" : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem
-                    key={category}
-                    value={category}
-                    className="capitalize"
-                  >
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <CustomSelect
+            value={filters.category || "all"}
+            onValueChange={(value) =>
+              handleInputChange("category", value === "all" ? "" : value)
+            }
+            placeholder="All Categories"
+            options={categories}
+            label="Category"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price
-            </label>
-            <Select
-              value={filters.priceRange}
-              onValueChange={(value) => handleInputChange("priceRange", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select price range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Events</SelectItem>
-                <SelectItem value="free">Free Events</SelectItem>
-                <SelectItem value="paid">Paid Events</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <CustomSelect
+            value={filters.priceRange}
+            onValueChange={(value) => handleInputChange("priceRange", value)}
+            placeholder="All Events"
+            options={["free", "paid"]}
+            label="Price"
+          />
         </div>
       )}
 
@@ -248,7 +251,7 @@ export default function SearchFilters({
               {filters.category.charAt(0).toUpperCase() +
                 filters.category.slice(1)}
               <X
-                className="ml-1 h-3 w-3 cursor-pointer"
+                className="ml-1 h-3 w-3 cursor-pointer hover:text-blue-600"
                 onClick={() => handleInputChange("category", "")}
               />
             </span>
@@ -257,7 +260,7 @@ export default function SearchFilters({
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
               City: {filters.city}
               <X
-                className="ml-1 h-3 w-3 cursor-pointer"
+                className="ml-1 h-3 w-3 cursor-pointer hover:text-green-600"
                 onClick={() => handleInputChange("city", "")}
               />
             </span>
@@ -266,7 +269,7 @@ export default function SearchFilters({
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
               State: {filters.state}
               <X
-                className="ml-1 h-3 w-3 cursor-pointer"
+                className="ml-1 h-3 w-3 cursor-pointer hover:text-purple-600"
                 onClick={() => handleInputChange("state", "")}
               />
             </span>
@@ -276,7 +279,7 @@ export default function SearchFilters({
               Price:{" "}
               {filters.priceRange === "free" ? "Free Events" : "Paid Events"}
               <X
-                className="ml-1 h-3 w-3 cursor-pointer"
+                className="ml-1 h-3 w-3 cursor-pointer hover:text-orange-600"
                 onClick={() => handleInputChange("priceRange", "all")}
               />
             </span>

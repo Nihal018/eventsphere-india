@@ -1,3 +1,4 @@
+// Updated Header component with city selector
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -15,26 +16,33 @@ import {
   BarChart3,
 } from "lucide-react";
 import { isAuthenticated, removeAuthToken } from "@/lib/utils";
+import CitySelector from "@/components/CitySelector";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
 
-    // Get user role from token or storage
+    // Get user role from token
     const token = localStorage.getItem("auth_token");
     if (token) {
       try {
-        // Decode JWT to get user role (basic implementation)
         const payload = JSON.parse(atob(token.split(".")[1]));
         setUserRole(payload.role || "USER");
       } catch (error) {
         console.error("Error decoding token:", error);
       }
+    }
+
+    // Get saved city from localStorage
+    const savedCity = localStorage.getItem("selectedCity");
+    if (savedCity) {
+      setSelectedCity(savedCity);
     }
   }, []);
 
@@ -45,10 +53,21 @@ export default function Header() {
     router.push("/");
   };
 
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    localStorage.setItem("selectedCity", city);
+
+    // If on events page, apply city filter
+    if (window.location.pathname === "/events") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("city", city);
+      router.push(url.pathname + url.search);
+    }
+  };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  console.log("userRole: ", userRole);
 
   const isOrganizer = userRole === "ORGANIZER" || userRole === "ADMIN";
 
@@ -69,12 +88,11 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/"
-              className=" hover:text-primary hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors "
-            >
-              Home
-            </Link>
+            {/* City Selector */}
+            <CitySelector
+              selectedCity={selectedCity}
+              onCityChange={handleCityChange}
+            />
             <Link
               href="/events"
               className=" hover:text-primary  hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors"
@@ -166,6 +184,14 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden border-t bg-white pb-4">
             <div className="flex flex-col space-y-4 pt-4">
+              {/* Mobile City Selector */}
+              <div className="px-4">
+                <CitySelector
+                  selectedCity={selectedCity}
+                  onCityChange={handleCityChange}
+                />
+              </div>
+
               <Link
                 href="/"
                 className="text-gray-700 hover:text-primary transition-colors px-4"

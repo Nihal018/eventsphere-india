@@ -9,6 +9,7 @@ import { Event, FilterOptions } from "@/types";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import Header from "../../components/layout/Header";
+import { useCityContext } from "@/lib/useCityContext";
 
 export default function EventsPageContent() {
   const searchParams = useSearchParams();
