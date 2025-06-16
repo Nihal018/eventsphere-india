@@ -195,25 +195,25 @@ export const getDirectionsWithLocation = async (
 // Check if user is authenticated
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;
-  return !!localStorage.getItem("auth-token");
+  return !!localStorage.getItem("auth_token");
 }
 
 // Get auth token
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth-token");
+  return localStorage.getItem("auth_token");
 }
 
 // Set auth token
 export function setAuthToken(token: string): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem("auth-token", token);
+  localStorage.setItem("auth_token", token);
 }
 
 // Remove auth token
 export function removeAuthToken(): void {
   if (typeof window === "undefined") return;
-  localStorage.removeItem("auth-token");
+  localStorage.removeItem("auth_token");
 }
 
 // API request helper

@@ -51,6 +51,7 @@ export default function LoginPage() {
 
       if (data.success) {
         setAuthToken(data.token);
+        console.log("app/auth/login/page.tsx   auth_token: ", data.token);
         router.push("/");
       } else {
         setError(data.message || "Login failed");

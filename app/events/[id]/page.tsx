@@ -1,5 +1,3 @@
-// app/events/[id]/page.tsx - Updated to use real data while keeping original UI
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,6 +18,11 @@ import {
   Shield,
   Star,
   ArrowLeft,
+  User,
+  Edit,
+  Crown,
+  CheckCircle,
+  X,
 } from "lucide-react";
 import {
   formatDate,
@@ -28,12 +31,14 @@ import {
   getDirectionsWithLocation,
   isAuthenticated,
 } from "@/lib/utils";
+import Header from "../../../components/layout/Header";
 
 interface Event {
   id: string;
   title: string;
   description: string;
   detailedDescription?: string;
+  shortDesc?: string;
   date: string;
   time: string;
   venueName: string;
@@ -41,6 +46,7 @@ interface Event {
   city: string;
   state: string;
   imageUrl?: string;
+  imagePath?: string;
   price: number;
   isFree: boolean;
   latitude?: number;
@@ -53,6 +59,17 @@ interface Event {
   sourceUrl?: string;
   isVerified: boolean;
   aggregationScore: number;
+  isUserCreated?: boolean;
+  organizerId?: string;
+  organizerUser?: {
+    id: string;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+  };
+  status?: string;
+  maxAttendees?: number;
 }
 
 export default function EventDetailPage() {
@@ -61,16 +78,41 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [gettingDirections, setGettingDirections] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { showToast, ToastContainer } = useToast();
+  const [userBookingId, setUserBookingId] = useState<string | null>(null);
+
+  const [hasBooked, setHasBooked] = useState(false);
+  const [checkingBooking, setCheckingBooking] = useState(true);
 
   useEffect(() => {
+    // Get current user ID from token
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setCurrentUserId(payload.userId);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+
     const fetchEvent = async () => {
       try {
         setLoading(true);
 
-        // Fetch all events and find the one with matching ID
-        const response = await fetch("/api/events");
-        const data = await response.json();
+        // Try direct API call first for user-created events
+        let response = await fetch(`/api/events/${params.id}`);
+        let data = await response.json();
+
+        if (data.success) {
+          setEvent(data.data);
+          return;
+        }
+
+        // Fallback to fetching all events
+        response = await fetch("/api/events");
+        data = await response.json();
 
         if (data.success) {
           const foundEvent = data.data.find((e: Event) => e.id === params.id);
@@ -90,26 +132,112 @@ export default function EventDetailPage() {
     }
   }, [params.id]);
 
-  const handleBookNow = () => {
+  useEffect(() => {
+    const checkExistingBooking = async () => {
+      if (!isAuthenticated() || !event) return;
+
+      try {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch("/api/bookings", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          const existingBooking = data.data.find(
+            (booking: any) =>
+              booking.event.id === event.id && booking.status === "CONFIRMED"
+          );
+          if (existingBooking) {
+            setHasBooked(true);
+            setUserBookingId(existingBooking.id); // Store the booking ID
+          } else {
+            setHasBooked(false);
+            setUserBookingId(null);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking booking:", error);
+      } finally {
+        setCheckingBooking(false);
+      }
+    };
+
+    checkExistingBooking();
+  }, [event]);
+
+  const handleBookNow = async () => {
     if (!isAuthenticated()) {
       router.push("/auth/login");
       return;
     }
 
-    // Store booking details in session storage for checkout
-    if (event) {
-      const bookingDetails = {
-        eventId: event.id,
-        eventTitle: event.title,
-        price: event.price,
-        date: event.date,
-        time: event.time,
-        venueName: event.venueName,
-      };
-      sessionStorage.setItem("bookingDetails", JSON.stringify(bookingDetails));
-      router.push("/checkout");
+    try {
+      const token = localStorage.getItem("auth_token");
+      if (!event) {
+        showToast("Event not found", "error");
+        return;
+      }
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventId: event.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast("Event booked successfully! 🎉", "success");
+
+        const bookingDetails = {
+          eventId: event.id,
+          eventTitle: event.title,
+          price: event.price,
+          date: event.date,
+          time: event.time,
+          venueName: event.venueName,
+        };
+        sessionStorage.setItem(
+          "bookingDetails",
+          JSON.stringify(bookingDetails)
+        );
+        router.push("/checkout");
+      } else {
+        showToast(data.message || "Failed to book event", "error");
+      }
+    } catch (error) {
+      console.error("Booking error:", error);
+      showToast("An error occurred while booking the event", "error");
     }
   };
+
+  // const handleBookNow = () => {
+  //   if (!isAuthenticated()) {
+  //     router.push("/auth/login");
+  //     return;
+  //   }
+
+  //   // Store booking details in session storage for checkout
+  //   if (event) {
+  //     const bookingDetails = {
+  //       eventId: event.id,
+  //       eventTitle: event.title,
+  //       price: event.price,
+  //       date: event.date,
+  //       time: event.time,
+  //       venueName: event.venueName,
+  //     };
+  //     sessionStorage.setItem("bookingDetails", JSON.stringify(bookingDetails));
+  //     router.push("/checkout");
+  //   }
+  // };
 
   const handleGetDirections = async () => {
     if (!event) return;
@@ -181,6 +309,55 @@ export default function EventDetailPage() {
     }
   };
 
+  const handleCancelBooking = async () => {
+    if (!isAuthenticated()) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (!userBookingId) {
+      showToast("No booking found to cancel", "error");
+      return;
+    }
+
+    // Confirmation dialog
+    if (!confirm("Are you sure you want to cancel this booking?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("auth_token");
+
+      // Use the booking ID, not the event ID
+      const response = await fetch(`/api/bookings/${userBookingId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast("Booking cancelled successfully! 🚫", "success");
+        setHasBooked(false);
+        setUserBookingId(null);
+        // Optional: refresh the page to update any other booking-related UI
+        // router.refresh();
+      } else {
+        showToast(data.message || "Failed to cancel booking", "error");
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      showToast("An error occurred while cancelling the booking", "error");
+    }
+  };
+
+  // Check if current user owns this event
+  const isEventOwner = currentUserId && event?.organizerId === currentUserId;
+  const isUserCreated = event?.isUserCreated || event?.organizerUser;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 animate-pulse">
@@ -223,15 +400,22 @@ export default function EventDetailPage() {
       <div className="min-h-screen bg-gray-50">
         {/* Back Button */}
         <div className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Button
-              variant="ghost"
-              onClick={() => router.back()}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Events
-            </Button>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+            <div className="flex justify-between items-center">
+              {/* Edit button for event owners */}
+              {isEventOwner && (
+                <Button
+                  onClick={() =>
+                    router.push(`/organizer/events/${event.id}/edit`)
+                  }
+                  variant="outline"
+                  className="flex items-center"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Event
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -250,21 +434,56 @@ export default function EventDetailPage() {
               <span className="bg-blue-600 px-3 py-1 rounded-full text-sm font-semibold capitalize">
                 {event.category}
               </span>
-              {event.sourceName && (
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium border ${getSourceBadgeColor(
-                    event.sourceId
-                  )}`}
-                >
-                  {event.sourceName}
-                  {event.isVerified && (
-                    <Shield className="inline h-3 w-3 ml-1" />
-                  )}
+
+              {/* User-created vs sourced badges */}
+              {isUserCreated ? (
+                <span className="bg-purple-600 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Created by Organizer
+                </span>
+              ) : (
+                event.sourceName && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium border ${getSourceBadgeColor(
+                      event.sourceId
+                    )}`}
+                  >
+                    {event.sourceName}
+                    {event.isVerified && (
+                      <Shield className="inline h-3 w-3 ml-1" />
+                    )}
+                  </span>
+                )
+              )}
+
+              {event.status && event.status !== "PUBLISHED" && (
+                <span className="bg-yellow-600 px-3 py-1 rounded-full text-sm font-semibold">
+                  {event.status}
                 </span>
               )}
             </div>
             <h1 className="text-4xl font-bold mb-2">{event.title}</h1>
-            <p className="text-xl text-gray-200">by {event.organizer}</p>
+
+            {/* Enhanced organizer info */}
+            <div className="flex items-center space-x-2">
+              <User className="h-5 w-5" />
+              <span className="text-xl text-gray-200">
+                by{" "}
+                {event.organizerUser
+                  ? `${
+                      event.organizerUser.firstName &&
+                      event.organizerUser.lastName
+                        ? `${event.organizerUser.firstName} ${event.organizerUser.lastName}`
+                        : event.organizerUser.username
+                    }`
+                  : event.organizer}
+              </span>
+              {isUserCreated && (
+                <span className="bg-purple-500/80 px-2 py-1 rounded text-sm">
+                  Organizer
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -281,8 +500,32 @@ export default function EventDetailPage() {
                   {event.detailedDescription || event.description}
                 </p>
 
-                {/* Source Information */}
-                {event.sourceUrl && (
+                {/* Organizer Details for User-Created Events */}
+                {event.organizerUser && (
+                  <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h3 className="font-semibold text-purple-900 mb-2 flex items-center">
+                      <Crown className="h-5 w-5 mr-2" />
+                      Event Organizer
+                    </h3>
+                    <div className="text-purple-800">
+                      <p className="font-medium">
+                        {event.organizerUser.firstName &&
+                        event.organizerUser.lastName
+                          ? `${event.organizerUser.firstName} ${event.organizerUser.lastName}`
+                          : event.organizerUser.username}
+                      </p>
+                      <p className="text-sm">@{event.organizerUser.username}</p>
+                      {isEventOwner && (
+                        <p className="text-xs mt-1 text-purple-600">
+                          This is your event
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Source Information for Aggregated Events */}
+                {!isUserCreated && event.sourceUrl && (
                   <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
@@ -314,14 +557,20 @@ export default function EventDetailPage() {
                   Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {event.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      {tag}
+                  {event.tags && event.tags.length > 0 ? (
+                    event.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-500 text-sm">
+                      No tags available
                     </span>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -331,15 +580,6 @@ export default function EventDetailPage() {
                   Event Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Quality Score:</span>
-                    <div className="flex items-center mt-1">
-                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                      <span className="font-medium">
-                        {event.aggregationScore}/100
-                      </span>
-                    </div>
-                  </div>
                   <div>
                     <span className="text-gray-600">Verification:</span>
                     <div className="flex items-center mt-1">
@@ -355,6 +595,33 @@ export default function EventDetailPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Additional info for user-created events */}
+                  {isUserCreated && (
+                    <>
+                      <div>
+                        <span className="text-gray-600">Event Type:</span>
+                        <div className="flex items-center mt-1">
+                          <Crown className="h-4 w-4 text-purple-500 mr-1" />
+                          <span className="text-purple-600 font-medium">
+                            User Created
+                          </span>
+                        </div>
+                      </div>
+
+                      {event.maxAttendees && (
+                        <div>
+                          <span className="text-gray-600">Max Attendees:</span>
+                          <div className="flex items-center mt-1">
+                            <Users className="h-4 w-4 text-blue-500 mr-1" />
+                            <span className="font-medium">
+                              {event.maxAttendees}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -375,7 +642,6 @@ export default function EventDetailPage() {
                   )}
                   <p className="text-gray-600">per person</p>
                 </div>
-
                 <div className="space-y-4 mb-6">
                   <div className="flex items-center text-gray-700">
                     <Calendar className="h-5 w-5 mr-3 text-blue-600" />
@@ -402,12 +668,57 @@ export default function EventDetailPage() {
                     </div>
                   </div>
                 </div>
-
                 <div className="space-y-3">
-                  <Button onClick={handleBookNow} className="w-full" size="lg">
-                    <IndianRupee className="h-4 w-4 mr-2" />
-                    Book Now
-                  </Button>
+                  {/* Only show booking for published events or if user is owner */}
+                  {(event.status === "PUBLISHED" || isEventOwner) &&
+                    (checkingBooking ? (
+                      <Button disabled className="w-full" size="lg">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Checking...
+                      </Button>
+                    ) : hasBooked ? (
+                      <div className="space-y-2">
+                        <Button
+                          disabled
+                          className="w-full bg-green-600"
+                          size="lg"
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Already Booked
+                        </Button>
+
+                        {/* Cancel booking button */}
+                        <Button
+                          onClick={handleCancelBooking}
+                          variant="outline"
+                          className="w-full border-red-300 text-red-700 hover:bg-red-50"
+                          size="lg"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancel Booking
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleBookNow}
+                        className="w-full"
+                        size="lg"
+                      >
+                        <IndianRupee className="h-4 w-4 mr-2" />
+                        {isEventOwner ? "Preview Booking" : "Book Now"}
+                      </Button>
+                    ))}
+
+                  {hasBooked && (
+                    <Button
+                      onClick={() => router.push("/my-bookings")}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      View My Bookings
+                    </Button>
+                  )}
 
                   <Button
                     onClick={handleGetDirections}
@@ -432,7 +743,6 @@ export default function EventDetailPage() {
                     Share Event
                   </Button>
                 </div>
-
                 {/* Enhanced Location Permission Notice */}
                 <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-md">
                   <div className="flex items-start">
@@ -448,24 +758,36 @@ export default function EventDetailPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Event Source Info */}
-                {event.sourceName && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                {/* Event Source/Creator Info */}
+                {isUserCreated ? (
+                  <div className="mt-4 p-3 bg-purple-50 rounded-md">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-medium text-gray-700">
-                          Sourced from {event.sourceName}
+                        <p className="text-xs font-medium text-purple-700">
+                          Created by {event.organizerUser?.username}
                         </p>
-                        <p className="text-xs text-gray-600 mt-1">
-                          Quality Score: {event.aggregationScore}/100
+                        <p className="text-xs text-purple-600 mt-1">
+                          User-generated event
                         </p>
                       </div>
-                      {event.isVerified && (
-                        <Shield className="h-4 w-4 text-green-600" />
-                      )}
+                      <Crown className="h-4 w-4 text-purple-600" />
                     </div>
                   </div>
+                ) : (
+                  event.sourceName && (
+                    <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-medium text-gray-700">
+                            Sourced from {event.sourceName}
+                          </p>
+                        </div>
+                        {event.isVerified && (
+                          <Shield className="h-4 w-4 text-green-600" />
+                        )}
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
 
@@ -476,7 +798,6 @@ export default function EventDetailPage() {
                     Location Preview
                   </h3>
                   <div className="h-48 bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                    {/* Static map placeholder - replace with actual map if you have Google Maps API */}
                     <div className="text-center">
                       <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-600">{event.venueName}</p>
@@ -490,20 +811,6 @@ export default function EventDetailPage() {
                         View on Map
                       </Button>
                     </div>
-
-                    {/* If you have Google Maps API, replace above with: */}
-                    {/* 
-                    <iframe
-                      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${event.latitude},${event.longitude}&zoom=15`}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="rounded-lg"
-                    ></iframe>
-                    */}
                   </div>
                 </div>
               )}
@@ -515,13 +822,6 @@ export default function EventDetailPage() {
                 </h3>
                 <div className="space-y-2 text-xs text-gray-600">
                   <div className="flex justify-between">
-                    <span>Event ID:</span>
-                    <span className="font-mono">
-                      {event.id.split("_").pop()}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between">
                     <span>Category:</span>
                     <span className="capitalize font-medium">
                       {event.category}
@@ -529,16 +829,27 @@ export default function EventDetailPage() {
                   </div>
 
                   <div className="flex justify-between">
-                    <span>Source:</span>
-                    <span>{event.sourceName || "Curated"}</span>
+                    <span>Type:</span>
+                    <span>{isUserCreated ? "User Created" : "Aggregated"}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span>Organizer:</span>
-                    <span>{event.organizer}</span>
+                    <span>
+                      {event.organizerUser?.username || event.organizer}
+                    </span>
                   </div>
 
-                  {event.sourceUrl && (
+                  {event.status && (
+                    <div className="flex justify-between">
+                      <span>Status:</span>
+                      <span className="capitalize">
+                        {event.status.toLowerCase()}
+                      </span>
+                    </div>
+                  )}
+
+                  {!isUserCreated && event.sourceUrl && (
                     <div className="pt-2 border-t">
                       <a
                         href={event.sourceUrl}

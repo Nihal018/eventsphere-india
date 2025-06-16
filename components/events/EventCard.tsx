@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, User, Shield } from "lucide-react";
 import { Event } from "@/types";
 import { formatDate, formatTime, formatPrice } from "@/lib/utils";
 
@@ -36,12 +36,16 @@ export default function EventCard({ event }: EventCardProps) {
     );
   }
 
+  // Check if this is a user-created event
+  const isUserCreated = event.isUserCreated || event.organizerUser;
+  const organizerInfo = event.organizerUser || null;
+
   return (
     <Link href={`/events/${event.id}`}>
       <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border-0 shadow-md">
         <div className="relative h-48 overflow-hidden">
           <Image
-            src={event.imageUrl}
+            src={event.imageUrl || "/placeholder-event.jpg"}
             alt={event.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -57,10 +61,22 @@ export default function EventCard({ event }: EventCardProps) {
               </span>
             )}
           </div>
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 flex gap-2">
             <span className="bg-black/70 text-white px-2 py-1 rounded-full text-xs font-semibold capitalize">
               {event.category}
             </span>
+            {/* Show if user-created vs sourced */}
+            {isUserCreated && (
+              <span className="bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+                <User className="h-3 w-3 mr-1" />
+                Created
+              </span>
+            )}
+            {event.isVerified && (
+              <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+                <Shield className="h-3 w-3" />
+              </span>
+            )}
           </div>
         </div>
 
@@ -70,7 +86,7 @@ export default function EventCard({ event }: EventCardProps) {
           </h3>
 
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {event.description}
+            {event.shortDesc || event.description}
           </p>
 
           <div className="space-y-2">
@@ -91,18 +107,41 @@ export default function EventCard({ event }: EventCardProps) {
 
           <div className="mt-4 pt-3 border-t">
             <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-500">
-                by {event.organizer}
-              </span>
-              <div className="flex flex-wrap gap-1">
-                {event.tags.slice(0, 2).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
-                  >
-                    {tag}
+              {/* Enhanced organizer info */}
+              <div className="flex items-center text-xs text-gray-500">
+                <User className="h-3 w-3 mr-1" />
+                {organizerInfo ? (
+                  <span>
+                    by{" "}
+                    {organizerInfo.firstName && organizerInfo.lastName
+                      ? `${organizerInfo.firstName} ${organizerInfo.lastName}`
+                      : organizerInfo.username}
                   </span>
-                ))}
+                ) : (
+                  <span>by {event.organizer}</span>
+                )}
+                {isUserCreated && (
+                  <span className="ml-2 bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded text-xs">
+                    Organizer
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                {event.tags && event.tags.length > 0 ? (
+                  event.tags.slice(0, 2).map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
+                    >
+                      {tag}
+                    </span>
+                  ))
+                ) : (
+                  <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                    {event.sourceName || "Curated"}
+                  </span>
+                )}
               </div>
             </div>
           </div>

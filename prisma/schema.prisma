@@ -1,5 +1,4 @@
-// prisma/schema.prisma - Updated with User model
-
+// prisma/schema.prisma - Updated with User model and Event Management (SQLite Compatible)
 generator client {
     provider = "prisma-client-js"
 }
@@ -18,35 +17,50 @@ model User {
     firstName String?
     lastName  String?
     phone     String?
+    role      String   @default("USER") // USER, ORGANIZER, ADMIN
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    // Relations
+    events   Event[]
+    bookings Booking[]
+
     @@index([email])
     @@index([username])
+    @@index([role])
 }
 
-// Existing Event model (keep as is)
+// Enhanced Event model (keeping existing fields + adding new ones)
 model Event {
     id                  String  @id @default(cuid())
     title               String
     description         String
     detailedDescription String?
-    date                String
+    shortDesc           String? // New: Brief description for cards
+    date                String // Keeping as String for compatibility
     time                String
     venueName           String
     venueAddress        String
     city                String
     state               String
     imageUrl            String?
+    imagePath           String? // New: For uploaded images
     price               Float   @default(0)
     isFree              Boolean @default(false)
     latitude            Float?
     longitude           Float?
     category            String
-    organizer           String
+    organizer           String // Keeping original field for compatibility
     tags                String // JSON string array
 
-    // Aggregation metadata
+    // New organizer management fields
+    organizerId   String? // New: Link to User who created this event
+    organizerUser User?   @relation(fields: [organizerId], references: [id], onDelete: SetNull)
+    maxAttendees  Int? // New: Maximum number of attendees
+    status        String  @default("PUBLISHED") // DRAFT, PUBLISHED, CANCELLED, COMPLETED
+    isUserCreated Boolean @default(false) // New: Distinguish user-created vs scraped events
+
+    // Existing aggregation metadata
     sourceId         String?
     sourceName       String?
     sourceUrl        String?
@@ -54,6 +68,9 @@ model Event {
     lastUpdated      DateTime @default(now())
     isVerified       Boolean  @default(false)
     aggregationScore Int      @default(0)
+
+    // Relations
+    bookings Booking[]
 
     // Timestamps
     createdAt DateTime @default(now())
@@ -63,6 +80,29 @@ model Event {
     @@index([category])
     @@index([date])
     @@index([sourceId])
+    @@index([organizerId])
+    @@index([status])
+    @@index([isUserCreated])
+}
+
+// New: Booking model for event attendance
+model Booking {
+    id      String @id @default(cuid())
+    userId  String
+    eventId String
+    status  String @default("CONFIRMED") // CONFIRMED, CANCELLED, ATTENDED
+
+    // Relations
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Prevent duplicate bookings
+    @@unique([userId, eventId])
+    @@index([userId])
+    @@index([eventId])
 }
 
 // Existing ScrapingLog model (keep as is)

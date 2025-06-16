@@ -12,6 +12,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   username: string;
+  role: string;
 }
 
 export interface AuthUser {
@@ -22,6 +23,7 @@ export interface AuthUser {
   lastName?: string;
   phone?: string;
   createdAt: string;
+  role: string;
 }
 
 /**
@@ -50,6 +52,7 @@ export function generateJWT(user: AuthUser): string {
     userId: user.id,
     email: user.email,
     username: user.username,
+    role: user.role,
   };
 
   return jwt.sign(payload, JWT_SECRET, {

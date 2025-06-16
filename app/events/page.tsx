@@ -7,6 +7,7 @@ import { EventGrid } from "@/components/events/EventGrid";
 import { Event, FilterOptions } from "@/types";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertCircle } from "lucide-react";
+import Header from "../../components/layout/Header";
 
 export default function EventsPage() {
   const searchParams = useSearchParams();
@@ -121,7 +122,8 @@ export default function EventsPage() {
           (event) =>
             event.title.toLowerCase().includes(searchTerm) ||
             event.description.toLowerCase().includes(searchTerm) ||
-            event.tags?.some((tag) => tag.toLowerCase().includes(searchTerm))
+            (Array.isArray(event.tags) &&
+              event.tags.some((tag) => tag.toLowerCase().includes(searchTerm)))
         );
       }
 
@@ -203,8 +205,9 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header />
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Discover Amazing Events</h1>

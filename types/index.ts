@@ -2,21 +2,90 @@ export interface Event {
   id: string;
   title: string;
   description: string;
+  detailedDescription?: string | null;
+  shortDesc?: string | null;
   date: string;
   time: string;
   venueName: string;
   venueAddress: string;
   city: string;
   state: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
+  imagePath?: string | null;
   price: number;
   isFree: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
   category: string;
   organizer: string;
-  sourceId?: string;
-  sourceName?: string;
-  tags: string[];
-  detailedDescription?: string;
+  tags: string | string[]; // Can be JSON string or parsed array
+
+  // New organizer management fields
+  organizerId?: string | null;
+  organizerUser?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string;
+  } | null;
+  maxAttendees?: number | null;
+  status?: string; // DRAFT, PUBLISHED, CANCELLED, COMPLETED
+  isUserCreated?: boolean;
+
+  // Existing aggregation metadata
+  sourceId?: string | null;
+  sourceName?: string | null;
+  sourceUrl?: string | null;
+  originalId?: string | null;
+  lastUpdated?: Date | string;
+  isVerified?: boolean;
+  aggregationScore?: number;
+
+  // Relations
+  bookings?: Booking[];
+  _count?: {
+    bookings: number;
+  };
+
+  // Timestamps
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+}
+
+export interface Booking {
+  id: string;
+  userId: string;
+  eventId: string;
+  status: string; // CONFIRMED, CANCELLED, ATTENDED
+  user?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  };
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  password?: string; // Only included in auth contexts
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  role: string; // USER, ORGANIZER, ADMIN
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
 }
 
 export interface ScrapingStatus {
@@ -35,17 +104,6 @@ export type EventCategory =
   | "comedy"
   | "education"
   | "wellness";
-
-export interface User {
-  id: string;
-  email: string;
-  username: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  createdAt: string;
-}
 
 export interface AuthResponse {
   success: boolean;

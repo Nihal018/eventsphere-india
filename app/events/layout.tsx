@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Header from "../../components/layout/Header";
 
 export const metadata: Metadata = {
   title: "Events - EventSphere India",
