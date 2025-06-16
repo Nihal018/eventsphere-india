@@ -1,11 +1,12 @@
-// prisma/schema.prisma - PostgreSQL version
+// prisma/schema.prisma
 generator client {
     provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
 // User model for authentication
@@ -13,15 +14,14 @@ model User {
     id        String   @id @default(cuid())
     email     String   @unique
     username  String   @unique
-    password  String // Will be hashed with bcrypt
+    password  String
     firstName String?
     lastName  String?
     phone     String?
-    role      String   @default("USER") // USER, ORGANIZER, ADMIN
+    role      String   @default("USER")
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    // Relations
     events   Event[]
     bookings Booking[]
 
@@ -30,14 +30,13 @@ model User {
     @@index([role])
 }
 
-// Enhanced Event model
 model Event {
     id                  String  @id @default(cuid())
     title               String
     description         String
     detailedDescription String?
     shortDesc           String?
-    date                String // Keeping as String for compatibility
+    date                String
     time                String
     venueName           String
     venueAddress        String
@@ -50,17 +49,15 @@ model Event {
     latitude            Float?
     longitude           Float?
     category            String
-    organizer           String // Legacy field for compatibility
-    tags                String  @default("[]") // JSON string array
+    organizer           String
+    tags                String  @default("[]")
 
-    // New organizer management fields
     organizerId   String?
     organizerUser User?   @relation(fields: [organizerId], references: [id], onDelete: SetNull)
     maxAttendees  Int?
-    status        String  @default("PUBLISHED") // DRAFT, PUBLISHED, CANCELLED, COMPLETED
+    status        String  @default("PUBLISHED")
     isUserCreated Boolean @default(false)
 
-    // Existing aggregation metadata
     sourceId         String?
     sourceName       String?
     sourceUrl        String?
@@ -69,10 +66,8 @@ model Event {
     isVerified       Boolean  @default(false)
     aggregationScore Int      @default(0)
 
-    // Relations
     bookings Booking[]
 
-    // Timestamps
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -85,27 +80,23 @@ model Event {
     @@index([isUserCreated])
 }
 
-// Booking model for event attendance
 model Booking {
     id      String @id @default(cuid())
     userId  String
     eventId String
-    status  String @default("CONFIRMED") // CONFIRMED, CANCELLED, ATTENDED
+    status  String @default("CONFIRMED")
 
-    // Relations
     user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
     event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    // Prevent duplicate bookings
     @@unique([userId, eventId])
     @@index([userId])
     @@index([eventId])
 }
 
-// Existing ScrapingLog model
 model ScrapingLog {
     id            String   @id @default(cuid())
     source        String
@@ -121,7 +112,6 @@ model ScrapingLog {
     @@index([timestamp])
 }
 
-// Existing EventSource model
 model EventSource {
     id             String    @id @default(cuid())
     name           String    @unique
