@@ -1,4 +1,3 @@
-// Step 1: Update your main API route to use the real scraper
 // app/api/admin/scrape-events/route.ts
 
 import { NextRequest, NextResponse } from "next/server";

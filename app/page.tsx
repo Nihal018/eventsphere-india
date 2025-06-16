@@ -1,4 +1,3 @@
-// app/page.tsx - Updated to use real data while keeping original UI
 "use client";
 
 import { useState, useEffect } from "react";

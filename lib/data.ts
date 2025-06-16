@@ -227,20 +227,6 @@ export const aggregatedEvents: Event[] = [
 // Combined events (curated + aggregated)
 export const mockEvents: Event[] = [...curatedEvents, ...aggregatedEvents];
 
-// Mock users for POC
-export const mockUsers: User[] = [
-  {
-    id: "1",
-    email: "demo@eventsphere.in",
-    username: "demo_user",
-    password: "password123",
-    firstName: "Demo",
-    lastName: "User",
-    phone: "+91-9876543210",
-    createdAt: "2025-01-01T00:00:00Z",
-  },
-];
-
 // Helper functions
 export const getUniqueCities = (): string[] => {
   return Array.from(new Set(mockEvents.map((event) => event.city))).sort();

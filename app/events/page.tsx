@@ -17,12 +17,10 @@ export default function EventsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dynamic filter options from real data
   const [cities, setCities] = useState<string[]>([]);
   const [states, setStates] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
-  // Get initial filters from URL parameters
   const getInitialFilters = useCallback((): FilterOptions => {
     return {
       search: searchParams.get("search") || "",
