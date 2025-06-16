@@ -1,10 +1,8 @@
 // app/api/bookings/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
 import { BOOKING_STATUS } from "@/lib/constants";
-
-const prisma = new PrismaClient();
 
 // POST - Create booking
 export async function POST(request: NextRequest) {
@@ -116,8 +114,6 @@ export async function POST(request: NextRequest) {
       { success: false, message: "Failed to create booking" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -179,7 +175,5 @@ export async function GET(request: NextRequest) {
       { success: false, message: "Failed to fetch bookings" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

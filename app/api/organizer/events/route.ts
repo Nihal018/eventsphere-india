@@ -1,9 +1,7 @@
 // app/api/organizer/events/route.ts - Works with existing database structure
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
-
-const prisma = new PrismaClient();
 
 // GET - Fetch organizer's events
 export async function GET(request: NextRequest) {
@@ -90,7 +88,5 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

@@ -1,10 +1,8 @@
 // app/api/bookings/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
 import { BOOKING_STATUS } from "@/lib/constants";
-
-const prisma = new PrismaClient();
 
 // DELETE - Cancel booking
 export async function DELETE(
@@ -78,7 +76,5 @@ export async function DELETE(
       { success: false, message: "Failed to cancel booking" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

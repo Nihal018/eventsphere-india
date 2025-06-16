@@ -1,9 +1,7 @@
 // app/api/admin/events/[id]/status/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
-
-const prisma = new PrismaClient();
 
 export async function PUT(
   request: NextRequest,
@@ -67,7 +65,5 @@ export async function PUT(
       { success: false, message: "Failed to update event status" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

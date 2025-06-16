@@ -1,9 +1,7 @@
 // app/api/admin/users/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
-
-const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
@@ -66,7 +64,5 @@ export async function GET(request: NextRequest) {
       { success: false, message: "Failed to fetch users" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

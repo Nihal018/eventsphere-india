@@ -2,11 +2,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DatabaseService } from "@/lib/database";
 import { ApiResponse, Event } from "@/types";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
 import { uploadFile } from "@/lib/fileUpload";
-
-const prisma = new PrismaClient();
 
 // GET - Fetch all events (existing functionality preserved)
 export async function GET(request: NextRequest) {
@@ -233,7 +231,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

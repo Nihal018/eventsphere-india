@@ -1,16 +1,14 @@
 // app/api/events/[id]/route.ts - Updated to work with existing system
 import { NextRequest, NextResponse } from "next/server";
 import { DatabaseService } from "@/lib/database";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
 import { uploadFile, deleteFile } from "@/lib/fileUpload";
-
-const prisma = new PrismaClient();
 
 // GET - Get single event details (preserving existing functionality)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -84,20 +82,19 @@ export async function GET(
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // PUT - Update event (owner only) - NEW FUNCTIONALITY
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
     const authHeader = request.headers.get("Authorization");
     const token = extractTokenFromHeader(authHeader);
+    const { id } = await params;
 
     if (!token) {
       return NextResponse.json(
@@ -122,7 +119,7 @@ export async function PUT(
 
     // Get existing event
     const existingEvent = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!existingEvent) {
@@ -224,7 +221,7 @@ export async function PUT(
 
     // Update event
     const updatedEvent = await prisma.event.update({
-      where: { id: params.id },
+      where: { id: id },
       data: eventData,
       include: {
         organizerUser: {
@@ -252,20 +249,19 @@ export async function PUT(
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // DELETE - Delete event (owner only) - NEW FUNCTIONALITY
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
     const authHeader = request.headers.get("Authorization");
     const token = extractTokenFromHeader(authHeader);
+    const { id } = await params;
 
     if (!token) {
       return NextResponse.json(
@@ -290,7 +286,7 @@ export async function DELETE(
 
     // Get existing event
     const existingEvent = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!existingEvent) {
@@ -339,7 +335,7 @@ export async function DELETE(
 
     // Delete event (this will cascade delete bookings)
     await prisma.event.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({
@@ -355,7 +351,5 @@ export async function DELETE(
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

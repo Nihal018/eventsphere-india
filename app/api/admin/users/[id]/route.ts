@@ -1,9 +1,7 @@
 // app/api/admin/users/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/database";
 import { verifyJWT, extractTokenFromHeader } from "@/lib/auth";
-
-const prisma = new PrismaClient();
 
 export async function DELETE(
   request: NextRequest,
@@ -65,7 +63,5 @@ export async function DELETE(
       { success: false, message: "Failed to delete user" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
