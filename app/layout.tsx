@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { CityProvider } from "../contexts/CityContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -71,7 +72,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <CityProvider>
+        <body className={`${inter.className} antialiased`}>{children}</body>
+      </CityProvider>
     </html>
   );
 }

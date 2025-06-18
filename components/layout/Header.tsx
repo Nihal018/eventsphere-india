@@ -5,8 +5,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useCity } from "@/contexts/CityContext";
 import {
-  User,
   Menu,
   X,
   Calendar,
@@ -22,7 +22,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [selectedCity, setSelectedCity] = useState<string>("");
+  const { selectedCity, setSelectedCity } = useCity();
   const router = useRouter();
 
   useEffect(() => {

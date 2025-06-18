@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { Event, ScrapingStatus } from "@/types";
+import { useCity } from "../contexts/CityContext";
 
 export default function HomePage() {
   const [featuredEvents, setFeaturedEvents] = useState<Event[]>([]);
@@ -24,10 +25,13 @@ export default function HomePage() {
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { selectedCity, setSelectedCity } = useCity();
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch("/api/events?limit=3");
+      const response = await fetch(
+        "/api/events?limit=3&" + new URLSearchParams({ city: selectedCity })
+      );
       const data = await response.json();
 
       if (data.success && data.data.length > 0) {
@@ -80,7 +84,7 @@ export default function HomePage() {
     };
 
     loadData();
-  }, []);
+  }, [selectedCity]);
 
   return (
     <div className="min-h-screen flex flex-col">
