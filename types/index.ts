@@ -199,3 +199,19 @@ export interface ConfirmationDetails extends BookingDetails, BillingInfo {
   paymentStatus: string;
   bookedAt: string;
 }
+
+// Add this to your existing types file or create a new pagination types file
+
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedApiResponse<T> extends ApiResponse<T> {
+  total?: number; // For backward compatibility
+  pagination?: PaginationInfo;
+}

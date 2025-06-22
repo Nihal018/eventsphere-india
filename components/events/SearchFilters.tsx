@@ -89,7 +89,7 @@ export default function SearchFilters({
     filters.category ||
     filters.priceRange !== "all";
 
-  // Custom Select Component
+  // Custom Select Component - Mobile-friendly version
   const CustomSelect = ({
     value,
     onValueChange,
@@ -113,7 +113,7 @@ export default function SearchFilters({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between"
+          className="w-full px-3 py-3 sm:py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between min-h-[44px] touch-manipulation"
         >
           <span
             className={
@@ -132,7 +132,7 @@ export default function SearchFilters({
         {isOpen && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
             <div
-              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+              className="px-3 py-3 sm:py-2 hover:bg-gray-100 cursor-pointer text-gray-700 min-h-[44px] sm:min-h-[auto] flex items-center touch-manipulation"
               onClick={() => {
                 onValueChange("all");
                 setIsOpen(false);
@@ -143,7 +143,7 @@ export default function SearchFilters({
             {options.map((option) => (
               <div
                 key={option}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 capitalize"
+                className="px-3 py-3 sm:py-2 hover:bg-gray-100 cursor-pointer text-gray-700 capitalize min-h-[44px] sm:min-h-[auto] flex items-center touch-manipulation"
                 onClick={() => {
                   onValueChange(option);
                   setIsOpen(false);
@@ -159,24 +159,24 @@ export default function SearchFilters({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
       {/* Search Bar */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Search events by name, description, or tags..."
           value={filters.search}
           onChange={(e) => handleInputChange("search", e.target.value)}
-          className="pl-10 h-12"
+          className="pl-10 h-12 text-base sm:text-sm"
         />
       </div>
 
       {/* Filter Toggle Button */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3 sm:gap-0">
         <Button
           variant="outline"
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 min-h-[44px] sm:h-auto touch-manipulation"
         >
           <Filter className="h-4 w-4" />
           <span>Filters</span>
@@ -191,7 +191,7 @@ export default function SearchFilters({
           <Button
             variant="ghost"
             onClick={clearFilters}
-            className="text-red-600 hover:text-red-700"
+            className="text-red-600 hover:text-red-700 min-h-[44px] sm:h-auto touch-manipulation"
           >
             <X className="h-4 w-4 mr-1" />
             Clear Filters
@@ -201,7 +201,7 @@ export default function SearchFilters({
 
       {/* Filter Options */}
       {isFilterOpen && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-in slide-in-from-top-2 duration-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in slide-in-from-top-2 duration-200">
           <CustomSelect
             value={filters.city || "all"}
             onValueChange={(value) =>
@@ -246,42 +246,50 @@ export default function SearchFilters({
       {hasActiveFilters && (
         <div className="mt-4 flex flex-wrap gap-2">
           {filters.category && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+            <span className="inline-flex items-center px-3 py-2 sm:py-1 rounded-full text-sm bg-blue-100 text-blue-800">
               Category:{" "}
               {filters.category.charAt(0).toUpperCase() +
                 filters.category.slice(1)}
-              <X
-                className="ml-1 h-3 w-3 cursor-pointer hover:text-blue-600"
+              <button
+                className="ml-2 text-blue-600 hover:text-blue-800 min-w-[24px] min-h-[24px] flex items-center justify-center touch-manipulation"
                 onClick={() => handleInputChange("category", "")}
-              />
+              >
+                <X className="h-3 w-3" />
+              </button>
             </span>
           )}
           {filters.city && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+            <span className="inline-flex items-center px-3 py-2 sm:py-1 rounded-full text-sm bg-green-100 text-green-800">
               City: {filters.city}
-              <X
-                className="ml-1 h-3 w-3 cursor-pointer hover:text-green-600"
+              <button
+                className="ml-2 text-green-600 hover:text-green-800 min-w-[24px] min-h-[24px] flex items-center justify-center touch-manipulation"
                 onClick={() => handleInputChange("city", "")}
-              />
+              >
+                <X className="h-3 w-3" />
+              </button>
             </span>
           )}
           {filters.state && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+            <span className="inline-flex items-center px-3 py-2 sm:py-1 rounded-full text-sm bg-purple-100 text-purple-800">
               State: {filters.state}
-              <X
-                className="ml-1 h-3 w-3 cursor-pointer hover:text-purple-600"
+              <button
+                className="ml-2 text-purple-600 hover:text-purple-800 min-w-[24px] min-h-[24px] flex items-center justify-center touch-manipulation"
                 onClick={() => handleInputChange("state", "")}
-              />
+              >
+                <X className="h-3 w-3" />
+              </button>
             </span>
           )}
           {filters.priceRange !== "all" && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
+            <span className="inline-flex items-center px-3 py-2 sm:py-1 rounded-full text-sm bg-orange-100 text-orange-800">
               Price:{" "}
               {filters.priceRange === "free" ? "Free Events" : "Paid Events"}
-              <X
-                className="ml-1 h-3 w-3 cursor-pointer hover:text-orange-600"
+              <button
+                className="ml-2 text-orange-600 hover:text-orange-800 min-w-[24px] min-h-[24px] flex items-center justify-center touch-manipulation"
                 onClick={() => handleInputChange("priceRange", "all")}
-              />
+              >
+                <X className="h-3 w-3" />
+              </button>
             </span>
           )}
         </div>

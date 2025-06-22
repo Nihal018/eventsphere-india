@@ -8,26 +8,31 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const filters = {
-      cities: getUniqueCities(),
-      states: getUniqueStates(),
-      categories: getUniqueCategories(),
+    // Get unique values from your data functions
+    const cities = getUniqueCities();
+    const states = getUniqueStates();
+    const categories = getUniqueCategories();
+
+    return NextResponse.json({
+      success: true,
+      cities: cities.sort(),
+      states: states.sort(),
+      categories: categories.sort(),
       priceRanges: [
         { label: "All Events", value: "all" },
         { label: "Free Events", value: "free" },
         { label: "Paid Events", value: "paid" },
       ],
-    };
-
-    return NextResponse.json({
-      success: true,
-      data: filters,
     });
   } catch (error) {
+    console.error("Error fetching filter options:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
+        error: "Failed to fetch filter options",
+        cities: [],
+        states: [],
+        categories: [],
       },
       { status: 500 }
     );
