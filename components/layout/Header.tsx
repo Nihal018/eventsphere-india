@@ -95,20 +95,20 @@ export default function Header() {
   return (
     <>
       <header className="bg-white shadow-lg border-b fixed top-0 z-50 w-full">
-        <div className="max-w-full mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
+        <div className="max-w-full mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 py-4 sm:h-16">
             {/* Logo - Mobile Optimized */}
             <Link
               href="/"
-              className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0 ml-10 "
+              className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0 ml-6 sm:ml-10"
               onClick={closeMenu}
             >
-              <Calendar className="h-7 w-7  text-primary " />
+              <Calendar className="h-7 w-7 text-primary mb-4 sm:mb-0" />
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
                 <span className="text-lg sm:text-2xl font-bold gradient-text leading-tight">
                   EventSphere
                 </span>
-                <span className="text-xs sm:text-sm bg-orange-100 text-orange-800 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full w-max">
+                <span className="text-xs  sm:text-sm bg-orange-100 text-orange-800 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full w-max">
                   India
                 </span>
               </div>
@@ -277,7 +277,7 @@ export default function Header() {
                 {isLoggedIn ? (
                   <>
                     {/* User-specific Navigation */}
-                    <div className=" pt-4 ">
+                    <div className=" space-y-1 pt-1">
                       <p className="text-sm font-medium text-gray-500 mb-3 px-3">
                         My Account
                       </p>
@@ -293,8 +293,8 @@ export default function Header() {
 
                       {/* Organizer Navigation */}
                       {isOrganizer ? (
-                        <div className=" pt-4 mt-4">
-                          <p className="text-sm font-medium text-gray-500 mb-3 px-3">
+                        <div className=" pt-1 space-y-1">
+                          <p className="text-sm font-medium text-gray-500 mb-1 px-3">
                             Organizer
                           </p>
 
@@ -328,7 +328,7 @@ export default function Header() {
                       )}
 
                       {/* Logout */}
-                      <div className=" pt-4 mt-4">
+                      <div className=" ">
                         <button
                           onClick={handleLogout}
                           className="flex items-center space-x-3 text-gray-700 hover:text-red-600 hover:bg-red-50 px-3 py-3 rounded-lg transition-colors w-full text-left"
