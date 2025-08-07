@@ -1,4 +1,4 @@
-EventSphere India - Event Discovery Platform
+# EventSphere India - Event Discovery Platform
 
 A web-based event discovery and booking platform for India, designed to help users find and book tickets for various events including concerts, workshops, conferences, and cultural programs.
 
